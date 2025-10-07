@@ -57,7 +57,7 @@ function HTML_FS_Step()
 	}
 	
 	
-	if (_touch_down() and point_in_rectangle(MOUSE.x, MOUSE.y, 0, 0, 100, 100)) {
+	if (_touch_down() and point_in_rectangle(MOUSE.x, MOUSE.y, 0, 0, 64, 64)) {
 		CAMERA.is_fullscreen = !CAMERA.is_fullscreen;
 		HTML_FS_canvas_fullscreen();
 	}

@@ -23,50 +23,13 @@ canvas {
 ]
 
 
-is it turn based or real time
-is there a grid or no
-are battles separate instances or all are on the same map
-
-heroes way would be
-	turn based, separate battles on a grid
-
-but this is not heroes
-
-this is myth and fear
-	real time, one map, free movement
-
-
-yet somehow all has to be controlled with tapping and holding for mobile
-can do classic hold and drag for movement
-
-this means single hero only
-
-what about other units
-they can be allies, going around and fighting with you
-
-
-
-but then what about exploring and getting stronger on the map
-its like a dungeon crawler basically
-but what is the point of the game?
-
-to defeat as strong enemies as you possibly can
-so there must be a lot of skill aswell
-
-strongest enemies are gods
-some are allies to you depending on the hero you chose, but you can maybe fight them still?
-idk
-but the point is to get more kills of more impressive enemies and to get a title
+the point is to get more kills of more impressive enemies and to get a title
 titles are the rank and display of skill and highscore
 and the fun is in the actual game and not some addictive progression
 titles like brutal, demon, godkiller
 
 
-if you can only drag and tap
-moving is drag
-but how is attacking
-	save for autocast passive skills, how are active skills used, they can be buttons on the left side but how many will there be?
-	
+
 auto attack closest when you are not dragging to move, so kiting will take skill
 	can have a target button which you can drag over a target to focus it instead
 

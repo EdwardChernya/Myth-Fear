@@ -12,7 +12,7 @@ if (room == rm_main_menu) {
 	if (point_in_rectangle(MOUSE.x, MOUSE.y, CAMERA.width/2-50, CAMERA.height/2-25, CAMERA.width/2+50, CAMERA.height/2+25)) {
 		if (_touch_down()) {
 			DEBUG.add("generating nodes", c_olive);
-			MAP.size = 64;
+			MAP.size = 32;
 			MAP.collision_grid_size = MAP.size*MAP.collision_scale;
 			MAP.collision_grid_cell_size = TILE/MAP.collision_scale;
 			init_map();

@@ -27,15 +27,3 @@ for (var i = 0; i < array_length(map_nodes); i++) {
     }
 }
     
-// Draw nodes
-for (var i = 0; i < array_length(map_nodes); i++) {
-    var node = map_nodes[i];
-        
-    if (node.is_trunk) {
-        draw_set_color(c_red); // Trunk nodes in red
-    } else {
-        draw_set_color(c_blue); // Branch nodes in blue
-    }
-        
-    draw_circle(node.x, node.y, 8, true);
-}

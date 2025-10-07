@@ -34,7 +34,7 @@ function mark_node_collisions() {
     // Mark areas around nodes as blocked
     for (var i = 0; i < array_length(MAP.map_nodes); i++) {
         var node = MAP.map_nodes[i];
-        mark_circle_area(node.x, node.y, 20); // Block radius around nodes
+        mark_circle_area(node.x, node.y, 125); // Block radius around nodes
     }
     
     // Mark areas around connections (roads) as blocked
@@ -42,12 +42,12 @@ function mark_node_collisions() {
         var node = MAP.map_nodes[i];
         for (var j = 0; j < array_length(node.connections); j++) {
             var other_node = MAP.map_nodes[node.connections[j]];
-            mark_line_area(node.x, node.y, other_node.x, other_node.y, 15); // Road width
+            mark_line_area(node.x, node.y, other_node.x, other_node.y, 75); // Road width
         }
     }
 }
 
-function is_position_blocked(x, y) {
+function is_position_walkable(x, y) {
     var grid_x = floor(x / MAP.collision_grid_cell_size);
     var grid_y = floor(y / MAP.collision_grid_cell_size);
     
@@ -56,7 +56,7 @@ function is_position_blocked(x, y) {
         return MAP.collision_grid[grid_x][grid_y];
     }
     
-    return true; // Block out-of-bounds positions
+    return false; // Block out-of-bounds positions
 }
 
 function mark_circle_area(center_x, center_y, radius) {
@@ -161,11 +161,8 @@ function create_spiral_map(map_size, trunk_nodes = 8, max_branches = 5) {
         
         // Connect to previous trunk node (if not first node)
         if (i > 0) {
-            // Sometimes skip connections for more broken paths
-            if (random(1) < 0.85) { // 85% chance to connect if not too close
-                array_push(nodes[i-1].connections, i);
-                array_push(nodes[i].connections, i-1);
-            }
+            array_push(nodes[i-1].connections, i);
+            array_push(nodes[i].connections, i-1);
         }
         
         current_x = node_x;

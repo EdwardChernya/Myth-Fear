@@ -58,6 +58,9 @@ function Vector2(_x=0, _y=_x) constructor {
         return sqrt(dx * dx + dy * dy);
     }
 	
+	static Copy = function() {
+		return new Vector2(x, y);
+	}
 }
 
 // wrappers
