@@ -1,0 +1,124 @@
+
+
+[ // canvas fix
+
+canvas {
+                image-rendering: optimizeSpeed;
+                -webkit-interpolation-mode: nearest-neighbor;
+                -ms-touch-action: none;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+                touch-action: none;
+				user-select: none;
+				outline: none;
+				-webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
+                margin: 0px;
+                padding: 0px;
+                border: 0px;
+            }
+
+]
+
+
+is it turn based or real time
+is there a grid or no
+are battles separate instances or all are on the same map
+
+heroes way would be
+	turn based, separate battles on a grid
+
+but this is not heroes
+
+this is myth and fear
+	real time, one map, free movement
+
+
+yet somehow all has to be controlled with tapping and holding for mobile
+can do classic hold and drag for movement
+
+this means single hero only
+
+what about other units
+they can be allies, going around and fighting with you
+
+
+
+but then what about exploring and getting stronger on the map
+its like a dungeon crawler basically
+but what is the point of the game?
+
+to defeat as strong enemies as you possibly can
+so there must be a lot of skill aswell
+
+strongest enemies are gods
+some are allies to you depending on the hero you chose, but you can maybe fight them still?
+idk
+but the point is to get more kills of more impressive enemies and to get a title
+titles are the rank and display of skill and highscore
+and the fun is in the actual game and not some addictive progression
+titles like brutal, demon, godkiller
+
+
+if you can only drag and tap
+moving is drag
+but how is attacking
+	save for autocast passive skills, how are active skills used, they can be buttons on the left side but how many will there be?
+	
+auto attack closest when you are not dragging to move, so kiting will take skill
+	can have a target button which you can drag over a target to focus it instead
+
+but what about active abilities with skillshots
+	can be a pie menu which would allow you to use a lot of actives with just dragging the middle of the screen
+	drawback is this takes time and effort and does not solve the skillshot issue very well
+	it can work nicely tho
+	if the pie is invisible and only shows the preview in the top left of the current action selected
+	and you can edit the pie yourself to add or remove or change order
+pie has to be super sensitive so not much movement is needed
+and once a skillshot has been selected then you have to aim it by keeping your finger on before you release to cast it
+if the game is moderately fast this could work nicely
+
+and this makes it actually pure skill
+there is going to be scaling, but playing correctly micro would be way more important if there are skills like blocking/parrying and etc.
+basically myth and fear but simpler and html
+
+
+lastly how the fuck does the map look
+auto generated with encounters
+its the most heroes aspect of the game
+some areas have separate rooms but mostly its one map, until you got a new map
+and there are places with enemies rushing towards you, and places with stationary enemies
+and places with neutrals who can be allies
+
+neutrals depend on your hero and faction, so some heroes cant get certain allies because they would not be neutral to them
+some are straight up allies? sure but they dont auto join you
+they ask if they can join and you chose to get them as friend or no
+
+gona need a character menu, allies menu, inventory
+	these can all be one icon/menu with multiple tabs
+	or simply scrolling down to see each ally's character panel below the hero's
+
+
+the ui is minimalist, lineage2 but clean without the ornaments
+only hp bars on elite enemies on top of screen, your hp is somewhere on the bottom with your resource bar if any
+
+left handed mode basically flips the ui positions
+
+all units have 5 images, 1 idle 1 attack 3 run
+heroes have few extra for cast skill, cast spell, and hero specific skills/spells which need a special pose (valkyrie dash with wings etc.)
+
+
+myth and fear is all about souls aswell
+the menu could be souls and stuff
+
+there is also the forces of light vs dark
+valkyrja being the light and
+idk someone like the demon king is the dark
+game can have a short cinematic intro depicting the lore and stuff
+
+
+
+main menu can also have units battling in the background
+farsigh telescope item pan camera to nearest rare thing and reveal it from fog
