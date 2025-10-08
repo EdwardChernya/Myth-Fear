@@ -85,3 +85,11 @@ game can have a short cinematic intro depicting the lore and stuff
 
 main menu can also have units battling in the background
 farsigh telescope item pan camera to nearest rare thing and reveal it from fog
+
+
+
+pie menu has to be on the right of the move area so that you can play with two thumbs and not cover the middle of the screen
+
+
+
+outside edge of map is perma fog so it doesnt confuse you that its walkable

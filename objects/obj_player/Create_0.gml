@@ -3,8 +3,6 @@
 
 move_start = new Vector2();
 move_vector = new Vector2();
-moving = false;
-move_speed = 1;
 
 current_action = "";
 

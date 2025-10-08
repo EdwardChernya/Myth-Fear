@@ -2,7 +2,7 @@
 // You can write your code in this editor
 
 #macro VERSION "01a002dev"
-global.dev = true;
+global.dev = false;
 #macro DEV global.dev
 global.gamespeed = 1;
 game_set_speed(60, gamespeed_fps);

@@ -1,5 +1,7 @@
 // script goes brrrrrr
-function init_map(){
+function init_map(_type){
+	MAP.type = _type;
+	
 	// set room size
 	room_set_width(Room1, MAP.size*TILE);
 	room_set_height(Room1, MAP.size*TILE);
@@ -7,12 +9,14 @@ function init_map(){
 	randomize();
 	var r = irandom_range(MAP.size-MAP.size/3, MAP.size+MAP.size/3);
 	MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r*2);
-	DEBUG.add($"r{r} | actual{array_length(MAP.map_nodes)}", c_lime);
+	DEBUG.add($"main {r} | total {array_length(MAP.map_nodes)}", c_lime);
 	
 	init_collision_grid();
 	
 	room_goto(Room1);
 	PLAYER.position.Set(MAP.map_nodes[0]);
+	
+	
 }
 
 #region collision grid
@@ -321,6 +325,81 @@ function find_valid_position(nodes, intended_x, intended_y, min_distance, map_si
 
 function noise(seed) {
     return (sin(seed * 12.9898) * 43758.5453) % 1;
+}
+
+#endregion
+
+#region assets
+
+function place_rocks_simple(_type) {
+    
+	MAP.static_assets = [];
+	
+    // Define rock sizes and how many can fit in one cell
+	switch (_type) {
+		case "dungeon":
+		    var rock_types = [
+		        {sprite: dungeon_rock_s,   size: 30},
+		        {sprite: dungeon_rock_s2,  size: 30}, 
+		        {sprite: dungeon_rock_s3,  size: 30},
+		        {sprite: dungeon_rock_s5,  size: 30},
+		        {sprite: dungeon_rock_s6,  size: 30},
+		        {sprite: dungeon_rock_m,   size: 30},
+		    ];
+			break;
+	}
+    
+    // Place rock clusters
+    place_rocks_around_edges(rock_types);
+}
+
+function place_rocks_around_edges(rock_types) {
+    var grid_size = MAP.collision_grid_cell_size;
+    
+    // Scan the entire collision grid
+    for (var i = 0; i < array_length(MAP.collision_grid); i++) {
+        for (var j = 0; j < array_length(MAP.collision_grid[i]); j++) {
+            // If this cell is not walkable...
+            if (!MAP.collision_grid[i][j]) {
+                // Check all 8 surrounding cells
+                for (var dx = -1; dx <= 1; dx++) {
+                    for (var dy = -1; dy <= 1; dy++) {
+                        var check_x = i + dx;
+                        var check_y = j + dy;
+                        
+                        // If we find a blocked cell next to a walkable cell, place rock
+                        if (check_x >= 0 && check_x < array_length(MAP.collision_grid) &&
+                            check_y >= 0 && check_y < array_length(MAP.collision_grid[check_x]) &&
+                            MAP.collision_grid[check_x][check_y]) {
+                            
+                            var rock_x = i * grid_size + grid_size / 2;
+                            var rock_y = j * grid_size + grid_size / 2;
+                            
+                            create_rock(rock_x, rock_y, rock_types[irandom(array_length(rock_types)-1)]);
+                            break; // Only need one rock per edge cell
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+function create_rock(_x, _y, rock_type) {
+    var rock = {
+        x: _x,
+        y: _y,
+        sprite: rock_type.sprite,
+        size: rock_type.size,
+		scale : random_range(.35, 1),
+		xscale : choose(-1, 1),
+        draw: function() {
+            draw_sprite_ext(sprite, 0, x, y, scale*xscale, scale, 0, c_white, 1);
+        }
+    };
+    
+    array_push(MAP.static_assets, rock);
+    
+    //return rock;
 }
 
 #endregion

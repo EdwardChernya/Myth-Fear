@@ -11,6 +11,6 @@ if (room == rm_main_menu) {
 	draw_text(CAMERA.width/2, CAMERA.height/2, button_text);
 }
 
-if (DEV) {
+if (DEBUG.visible) {
 	DEBUG.draw();
 }

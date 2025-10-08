@@ -15,7 +15,7 @@ if (room == rm_main_menu) {
 			MAP.size = 32;
 			MAP.collision_grid_size = MAP.size*MAP.collision_scale;
 			MAP.collision_grid_cell_size = TILE/MAP.collision_scale;
-			init_map();
+			init_map("dungeon");
 		}
 		button_text = "> generate map >";
 	} else {
@@ -27,3 +27,6 @@ if (room == rm_main_menu) {
 if (DEV and room == Room1) {
 	if (keyboard_check_pressed(ord("R"))) room_goto(rm_main_menu);
 }
+
+if (keyboard_check_pressed(ord("D"))) DEV = !DEV;
+if (point_in_rectangle(MOUSE.x, MOUSE.y, 64, 0, 172, 64) and _touch_down()) DEV = !DEV;
