@@ -1,7 +1,7 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-#macro VERSION "01a002dev"
+#macro VERSION "01a003dev"
 global.dev = false;
 #macro DEV global.dev
 global.gamespeed = 1;

@@ -3,7 +3,11 @@
 
 if (room != Room1) exit;
 
-if (_touch_down() and !character_main.moving and mouse_inside_move_area()) {
+
+right_area = { x : CAMERA.width*.5, y : CAMERA.height*.6, x2 : CAMERA.width, y2 : CAMERA.height };
+left_area = { x : 0, y: CAMERA.height*.6, x2 : CAMERA.width*.5, y2: CAMERA.height};
+
+if (press_in_rectangle(right_area) and !character_main.moving) {
 	current_action = "move";
 	character_main.moving = true;
 	move_start.Set(MOUSE);
@@ -11,7 +15,8 @@ if (_touch_down() and !character_main.moving and mouse_inside_move_area()) {
 
 // Handle movement
 if (character_main.moving) {
-	if (_touch_up()) {
+	revealing_fog = 60;
+	if (_touch_up() != false) {
 		character_main.moving = false;
 		if (current_action == "move") current_action = "";
 	}
@@ -22,6 +27,12 @@ if (character_main.moving) {
 	move_w_collision(character_main.stats.speed, move_vector, position);
 
 }
+if (revealing_fog > 0) revealing_fog -= 1;
 
 // update character
 character_main.update();
+reveal_fog(position.x, position.y, character_main.stats.vision, .67);
+
+
+if (press_in_rectangle(left_area)) destroy_circle_area(position.x, position.y, 100);
+

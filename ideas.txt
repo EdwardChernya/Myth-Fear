@@ -93,3 +93,6 @@ pie menu has to be on the right of the move area so that you can play with two t
 
 
 outside edge of map is perma fog so it doesnt confuse you that its walkable
+
+
+game auto detects aspect ratio and sets controls to phone if is vertical and pc if horizontal

@@ -66,24 +66,25 @@ function Vector2(_x=0, _y=_x) constructor {
 // wrappers
 
 function _touch_down() {
-	return mouse_check_button_pressed(mb_left);
-}
-function _touch_up() {
-	return mouse_check_button_released(mb_left);
-}
-function _touch_hold() {
-	return mouse_check_button(mb_left);
-}
-
-
-//stuff 
-
-function mouse_inside_move_area() {
-	if (point_in_rectangle(MOUSE.x, MOUSE.y, CAMERA.width*PLAYER.move_area.x, CAMERA.height*PLAYER.move_area.y, CAMERA.width, CAMERA.height)) {
-		return true;
+	var touches = get_touches();
+	for (var i = 0; i < array_length(touches); i++) {
+	    var touch = touches[i];
+	    if (touch.pressed) return touch;
 	}
 	return false;
 }
+function _touch_up() {
+	var touches = get_touches();
+	for (var i = 0; i < array_length(touches); i++) {
+	    var touch = touches[i];
+	    if (touch.released) return touch;
+	}
+	return false;
+}
+
+
+
+//stuff 
 
 function floating_text_manager() constructor {
 	
@@ -122,6 +123,17 @@ function floating_text_manager() constructor {
 
 function sort_by_y(array) {
 	array_sort(array, function(a, b) { return a.y - b.y; });
+}
+
+function point_in_ellipse(px, py, center_x, center_y, radius, height_ratio) {
+    // Calculate the actual y-radius based on height ratio
+    var actual_radius_y = radius * height_ratio;
+    
+    // Ellipse equation: ((x-h)²/a²) + ((y-k)²/b²) <= 1
+    var dx = (px - center_x) / radius;
+    var dy = (py - center_y) / actual_radius_y;
+    
+    return (dx * dx + dy * dy) <= 1;
 }
 
 // moving
@@ -165,4 +177,65 @@ function move_w_collision(_speed, _vector, _position) {
             }
         }
     }
+}
+
+
+
+// collision
+function is_collision_shape_edge(grid, _x, _y) {
+	var hedgeR=true, hedgeL=true, vedgeU=true, vedgeD=true;
+	// check for horizontal edge both ways
+	for (var i = _x; i < array_length(grid); i++) {
+		if (grid[i][_y] == "free" && i != _x) hedgeR=false;
+	}
+	for (var i = _x; i > 0; i--) {
+		if (grid[i][_y] == "free" && i != _x) hedgeL=false;
+	}
+	// check for vertical edge both ways
+	for (var i = _y; i < array_length(grid); i++) {
+		if (grid[_x][i] == "free" && i != _y) vedgeD=false;
+	}
+	for (var i = _y; i > 0; i--) {
+		if (grid[_x][i] == "free" && i != _y) vedgeU=false;
+	}
+	
+	var is_edge = (hedgeR or hedgeL or vedgeU or vedgeD);
+	return { is_edge : is_edge, hedgeR : hedgeR, hedgeL : hedgeL, vedgeU : vedgeU, vedgeD : vedgeD};
+}
+
+function to_grid(_p, _cell_size) {
+	return clamp(floor(_p/_cell_size), 0, MAP.collision_grid_size-1);
+}
+
+
+// devices and touches
+
+function get_touches() {
+    var touches = [];
+    var max_touches = 3; // Most phones support up to 5 touches
+    
+    for (var i = 0; i < max_touches; i++) {
+        if (device_mouse_check_button(i, mb_left) || device_mouse_check_button_released(i, mb_left)) {
+            array_push(touches, {
+                id: i,
+                x: device_mouse_x(i),
+                y: device_mouse_y(i),
+				guix: device_mouse_raw_x(i),
+				guiy: device_mouse_raw_y(i),
+                pressed: device_mouse_check_button_pressed(i, mb_left),
+                released: device_mouse_check_button_released(i, mb_left)
+            });
+        }
+    }
+    
+    return touches;
+}
+
+function press_in_rectangle(area) {
+	var touches = get_touches();
+	for (var i = 0; i < array_length(touches); i++) {
+	    var touch = touches[i];
+	    if (touch.pressed && point_in_rectangle(touch.guix, touch.guiy, area.x, area.y, area.x2, area.y2)) return true;
+	}
+	return false;
 }

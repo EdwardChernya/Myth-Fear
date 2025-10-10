@@ -9,12 +9,9 @@ current_action = "";
 position = new Vector2(512, 512);
 
 
-move_area = {
-	x : .5,
-	y : .6,
-};
+right_area = undefined;
+left_area = undefined;
 
-pie_area_radius = .3;
-
+revealing_fog = 60;
 
 character_main = new basic_hero();

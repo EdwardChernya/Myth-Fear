@@ -31,3 +31,10 @@ draw_text(browser_width, 0, $"{fps}");
 draw_set_valign(fa_bottom);
 draw_set_color(c_dkgray);
 draw_text(browser_width, browser_height, $"{VERSION}");
+draw_set_color(c_lime);
+if (DEV) {
+	var cell = MAP.collision_grid_cell_size;
+	draw_text(MOUSE.x, MOUSE.y, $"{to_grid(mouse_x, cell)} {to_grid(mouse_y, cell)}");
+	draw_text(MOUSE.x, MOUSE.y-24, $"{MAP.collision_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
+	draw_text(MOUSE.x, MOUSE.y-48, $"{MAP.fog_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)].type}");
+}

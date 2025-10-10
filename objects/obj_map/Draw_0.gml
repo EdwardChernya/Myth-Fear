@@ -1,11 +1,17 @@
 /// @description Insert description here
 // You can write your code in this editor
 
+if (room != Room1) exit;
+
+// draw background surfaces
+draw_background_surfaces();
+
+draw_background_fog();
 
 // draw static assets
 var player_drawn = false;
 for (var i =0; i < array_length(static_assets); i++) {
-	if (!player_drawn and static_assets[i].y < PLAYER.position.y and i < array_length(static_assets)-1 and static_assets[i+1].y > PLAYER.position.y) {
+	if (!player_drawn && static_assets[i].y < PLAYER.position.y && i < array_length(static_assets)-1 && static_assets[i+1].y > PLAYER.position.y) {
 		PLAYER.character_main.draw();
 		player_drawn = true;
 	}
@@ -13,16 +19,35 @@ for (var i =0; i < array_length(static_assets); i++) {
 }
 if (!player_drawn) PLAYER.character_main.draw();
 
+draw_fog();
+fog_sprite_index += 1/60;
+if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 
 // draw map dev visuals
 if (!DEV) exit;
 
-// draw walkable area
-for (var i=0; i<array_length(collision_grid); i++) {
+// draw islands areas
+//for (var i=0; i<array_length(collision_grid); i++) {
+//	var s = collision_grid_cell_size;
+//	draw_set_alpha(.25);
+//	var c = c_fuchsia;
+//	for (var j=0; j<array_length(collision_grid[i]); j++) {
+//		if (collision_grid[i][j] == "island") draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
+//	}
+//	draw_set_alpha(1);
+//}
+
+// draw assets grid
+for (var i=0; i<array_length(assets_grid); i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
-	for (var j=0; j<array_length(collision_grid[i]); j++) {
-		if (collision_grid[i][j]) draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c_green, c_green, c_green, c_green, false);
+	for (var j=0; j<array_length(assets_grid[i]); j++) {
+		if (assets_grid[i][j] != undefined) {
+			var c = c_blue;
+			if (assets_grid[i][j].type == "rock") c = c_red;
+			if (assets_grid[i][j].type == "path") c = c_olive;
+			draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
+		}
 	}
 	draw_set_alpha(1);
 }

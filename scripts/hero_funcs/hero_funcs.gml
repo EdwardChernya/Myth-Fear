@@ -2,13 +2,15 @@
 function stat_struct() constructor {
 	
 	// base stuff
+	vision = 200;
+	speed = 1;
+	
 	hp = 5;
 	armor = .15;
 	mresist = .05;
 	ccresist = .05;
 	dodge = .01;
 	
-	speed = 1;
 	
 	adamage = 2;
 	arange = 50;
