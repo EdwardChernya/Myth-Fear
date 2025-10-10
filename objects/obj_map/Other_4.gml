@@ -15,6 +15,9 @@ switch (type) {
 		place_edge_walls();
 		generate_background_surfaces();
 		generate_fog_surfaces();
+		
+		place_main_assets();
+		
 		layer_background_sprite(back_id, dungeon_ground1);
 		break;
 }
@@ -23,3 +26,7 @@ switch (type) {
 // sort static assets for quick depth
 if (array_length(static_assets)>0) sort_by_y(static_assets);
 DEBUG.add($"{array_length(static_assets)} total static assets", c_lime);
+
+
+// dynamic assets
+array_push(MAP.dynamic_assets, PLAYER.character_main);

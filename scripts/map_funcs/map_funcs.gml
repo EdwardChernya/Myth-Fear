@@ -31,10 +31,7 @@ function init_grids() {
     for (var _x = 0; _x < grids_size; _x++) {
         collision_grid[_x] = array_create(grids_size, "outside");
 		assets_grid[_x] = array_create(grids_size, undefined);
-		fog_grid[_x] = array_create(grids_size, undefined);
-		for (var _y=0; _y< grids_size; _y++) {
-			fog_grid[_x][_y] = { alpha : 0, type : "fog"};
-		}
+		fog_grid[_x] = array_create(grids_size, "fog");
     }
     MAP.collision_grid = collision_grid;
 	MAP.assets_grid = assets_grid;
@@ -116,6 +113,22 @@ function mark_line_area(x1, y1, x2, y2, width, _type) {
     }
 }
 
+function mark_square_area_grid(x1, y1, x2, y2, _type) {
+    var grid_width = array_length(MAP.collision_grid);
+    var grid_height = array_length(MAP.collision_grid[0]);
+    
+    // Clamp coordinates to grid bounds
+    var start_x = clamp(x1, 0, grid_width - 1);
+    var start_y = clamp(y1, 0, grid_height - 1);
+    var end_x = clamp(x2+1, 0, grid_width);
+    var end_y = clamp(y2+1, 0, grid_height);
+    
+    for (var xx = start_x; xx < end_x; xx++) {
+        for (var yy = start_y; yy < end_y; yy++) {
+            MAP.collision_grid[xx][yy] = _type;
+        }
+    }
+}
 
 
 function mark_asset_circle_area(center_x, center_y, radius, _mark) {
@@ -528,8 +541,8 @@ function static_asset(_x, _y, _type) constructor {
 	xscale = 1;
 	scale = 1;
 	color = c_white;
-    static draw = function() {
-        draw_sprite_ext(sprite_index, 0, x, y, scale*xscale, scale, 0, color, 1);
+    static draw = function(_x = x, _y = y, _scale=scale) {
+        draw_sprite_ext(sprite_index, 0, _x, _y, _scale*xscale, _scale, 0, color, 1);
     }
 	static clear = function(_array=MAP.static_assets) {
 		var _f = function(_element, _index) {
@@ -619,10 +632,8 @@ function place_rocks_around_edges(rock_types) {
 function create_rock(_x, _y, rock_type, _edge) {
     
 	var _yy = _y;
-	if (is_position_walkable(_x, _y+MAP.collision_grid_cell_size)) _yy -= MAP.collision_grid_cell_size;
 	if (is_position_walkable(_x, _y-MAP.collision_grid_cell_size)) {
-		_yy += 2*MAP.collision_grid_cell_size;
-		if(flag_at_position(_x, _y-MAP.collision_grid_cell_size, MAP.collision_grid) == "outside") _yy += 3*MAP.collision_grid_cell_size;
+		if(flag_at_position(_x, _y-MAP.collision_grid_cell_size, MAP.collision_grid) == "outside") _yy += 5*MAP.collision_grid_cell_size;
 	}
 	
 	var _scale = _edge ? random_range(1, 1.5) : random_range(.5, 1.25);
@@ -770,8 +781,6 @@ function is_rock_at_grid(grid_x, grid_y) {
 
 function create_wall(_x, _y, _type, grid_x, grid_y, _array) {
 	var _yy = _y;
-	if (is_position_walkable(_x, _y+MAP.collision_grid_cell_size)) _yy -= MAP.collision_grid_cell_size;
-	if (is_position_walkable(_x, _y-MAP.collision_grid_cell_size)) _yy += MAP.collision_grid_cell_size;
 	
     var wall = new static_asset(_x, _yy, "wall");
 	wall.sprite_index = get_wall_sprite(_type);
@@ -841,6 +850,15 @@ function generate_background_surfaces() {
 		array_push(MAP.background_surfaces, surf);
 	}
 	
+	// clean up background assets from grid
+	for (var j=0; j<array_length(MAP.assets_grid); j++) {
+		for (var k=0; k<array_length(MAP.assets_grid[i]); k++) {
+			if (MAP.assets_grid[j][k] != undefined && MAP.assets_grid[j][k].type == "path") {
+				MAP.assets_grid[j][k] = undefined;
+			}
+		}
+	}
+	
 }
 
 function draw_background_surfaces() {
@@ -861,5 +879,23 @@ function find_bg_surf_index(_x, _y) {
 	var surface_y = floor(_y / MAP.background_surface_size);
 	return surface_y * MAP.surfaces_per_row + surface_x;
 }
+
+#endregion
+
+
+#region more assets
+
+function place_main_assets() {
+	
+	// place pillars
+	for (var i=0; i<array_length(MAP.map_nodes); i++) {
+		if (MAP.map_nodes[i].is_last) {
+			instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar);
+		}
+	}
+	
+}
+
+
 
 #endregion

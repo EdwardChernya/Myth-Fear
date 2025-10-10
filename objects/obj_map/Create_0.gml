@@ -12,6 +12,7 @@ collision_grid = undefined;
 collision_grid_size = undefined;
 collision_grid_cell_size = undefined;
 
+dynamic_assets = [];
 
 static_assets = [];
 assets_grid = undefined;
@@ -25,7 +26,7 @@ play_min_y = undefined;
 play_max_x = undefined;
 play_max_y = undefined;
 
-fog_revealed_alpha = 0.65;
+fog_revealed_alpha = 0.55;
 fog_grid = undefined;
 fog_sprite_index = 0;
 background_fog_surfaces = undefined;

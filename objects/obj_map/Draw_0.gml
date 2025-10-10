@@ -27,15 +27,15 @@ if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 if (!DEV) exit;
 
 // draw islands areas
-//for (var i=0; i<array_length(collision_grid); i++) {
-//	var s = collision_grid_cell_size;
-//	draw_set_alpha(.25);
-//	var c = c_fuchsia;
-//	for (var j=0; j<array_length(collision_grid[i]); j++) {
-//		if (collision_grid[i][j] == "island") draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
-//	}
-//	draw_set_alpha(1);
-//}
+for (var i=0; i<array_length(collision_grid); i++) {
+	var s = collision_grid_cell_size;
+	draw_set_alpha(.25);
+	var c = c_fuchsia;
+	for (var j=0; j<array_length(collision_grid[i]); j++) {
+		if (collision_grid[i][j] == "blocked") draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
+	}
+	draw_set_alpha(1);
+}
 
 // draw assets grid
 for (var i=0; i<array_length(assets_grid); i++) {
@@ -45,7 +45,6 @@ for (var i=0; i<array_length(assets_grid); i++) {
 		if (assets_grid[i][j] != undefined) {
 			var c = c_blue;
 			if (assets_grid[i][j].type == "rock") c = c_red;
-			if (assets_grid[i][j].type == "path") c = c_olive;
 			draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
 		}
 	}
@@ -62,7 +61,9 @@ for (var i = 0; i < array_length(map_nodes); i++) {
         
     for (var j = 0; j < array_length(node.connections); j++) {
         var other_node = map_nodes[node.connections[j]];
-        draw_line(node.x, node.y, other_node.x, other_node.y);
+		var c1 = node.is_last ? c_fuchsia : c_lime;
+		var c2 = other_node.is_last ? c_fuchsia : c_lime;
+        draw_line_color(node.x, node.y, other_node.x, other_node.y, c1, c2);
     }
 }
     

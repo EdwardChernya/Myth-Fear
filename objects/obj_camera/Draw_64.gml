@@ -34,7 +34,11 @@ draw_text(browser_width, browser_height, $"{VERSION}");
 draw_set_color(c_lime);
 if (DEV) {
 	var cell = MAP.collision_grid_cell_size;
+	var grid_x = to_grid(mouse_x, cell), grid_y = to_grid(mouse_y, cell);
 	draw_text(MOUSE.x, MOUSE.y, $"{to_grid(mouse_x, cell)} {to_grid(mouse_y, cell)}");
 	draw_text(MOUSE.x, MOUSE.y-24, $"{MAP.collision_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
-	draw_text(MOUSE.x, MOUSE.y-48, $"{MAP.fog_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)].type}");
+	draw_text(MOUSE.x, MOUSE.y-48, $"{MAP.fog_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
+	var p1 = to_screen(grid_x*cell, grid_y*cell);
+	var p2 = to_screen(grid_x*cell+cell, grid_y*cell+cell)
+	draw_rectangle(p1.x, p1.y, p2.x-1, p2.y-1, true);
 }

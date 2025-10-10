@@ -31,3 +31,4 @@ global.debug_text = new floating_text_manager();
 
 
 DEBUG.add("game started", c_olive);
+

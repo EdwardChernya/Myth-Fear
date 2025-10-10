@@ -83,6 +83,11 @@ function _touch_up() {
 }
 
 
+function to_screen(_x, _y) {
+	var sx = (_x-CAMERA.x)*CAMERA.zoom+CAMERA.width/2;
+	var sy = (_y-CAMERA.y)*CAMERA.zoom+CAMERA.height/2;
+	return new Vector2(sx, sy);
+}
 
 //stuff 
 
@@ -122,7 +127,7 @@ function floating_text_manager() constructor {
 }
 
 function sort_by_y(array) {
-	array_sort(array, function(a, b) { return a.y - b.y; });
+	if (array_length(array) > 0) array_sort(array, function(a, b) { return a.y - b.y; });
 }
 
 function point_in_ellipse(px, py, center_x, center_y, radius, height_ratio) {
@@ -134,6 +139,10 @@ function point_in_ellipse(px, py, center_x, center_y, radius, height_ratio) {
     var dy = (py - center_y) / actual_radius_y;
     
     return (dx * dx + dy * dy) <= 1;
+}
+
+function normalize(value, min_val, max_val) {
+    return (value - min_val) / (max_val - min_val);
 }
 
 // moving

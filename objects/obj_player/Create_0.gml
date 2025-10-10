@@ -13,5 +13,6 @@ right_area = undefined;
 left_area = undefined;
 
 revealing_fog = 60;
+vision_blockers = [];
 
 character_main = new basic_hero();

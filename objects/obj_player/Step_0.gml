@@ -31,7 +31,7 @@ if (revealing_fog > 0) revealing_fog -= 1;
 
 // update character
 character_main.update();
-reveal_fog(position.x, position.y, character_main.stats.vision, .67);
+reveal_fog_lineofsight(position.x, position.y, character_main.stats.vision, .67);
 
 
 if (press_in_rectangle(left_area)) destroy_circle_area(position.x, position.y, 100);
