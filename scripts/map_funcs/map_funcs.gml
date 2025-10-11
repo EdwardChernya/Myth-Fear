@@ -6,17 +6,7 @@ function init_map(_type){
 	room_set_width(Room1, MAP.size*TILE);
 	room_set_height(Room1, MAP.size*TILE);
 	
-	randomize();
-	var r = irandom_range(MAP.size-MAP.size/3, MAP.size+MAP.size/3);
-	MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r*2);
-	DEBUG.add($"main {r} | total {array_length(MAP.map_nodes)}", c_lime);
-	
-	init_grids();
-	
 	room_goto(Room1);
-	PLAYER.position.Set(MAP.map_nodes[0]);
-	
-	
 }
 
 #region grids
@@ -27,27 +17,30 @@ function init_grids() {
 	var grids_size = MAP.collision_grid_size;
     var collision_grid = array_create(grids_size);
 	var assets_grid = array_create(grids_size);
+	var static_assets = array_create(grids_size);
 	var fog_grid = array_create(grids_size);
     for (var _x = 0; _x < grids_size; _x++) {
         collision_grid[_x] = array_create(grids_size, "outside");
 		assets_grid[_x] = array_create(grids_size, undefined);
+		static_assets[_x] = array_create(grids_size, undefined);
 		fog_grid[_x] = array_create(grids_size, "fog");
     }
     MAP.collision_grid = collision_grid;
 	MAP.assets_grid = assets_grid;
 	MAP.fog_grid = fog_grid;
+	MAP.static_assets = static_assets;
     // Mark node areas as blocked
     mark_node_collisions();
     // flag stuff
 	flag_unwalkable_islands();
 }
 
-function mark_node_collisions() {
+function mark_node_collisions() { // roads and collisions
     // Mark areas around nodes as blocked
     for (var i = 0; i < array_length(MAP.map_nodes); i++) {
         var node = MAP.map_nodes[i];
         mark_circle_area(node.x, node.y, 125, "free"); // Block radius around nodes
-		mark_asset_circle_area(node.x, node.y, 15 + irandom(15), new static_asset(0, 0, "path"));
+		mark_asset_circle_area(node.x, node.y, 15 + irandom(15), new static_asset(0, 0, 0, 0, "path"));
     }
     
     // Mark areas around connections (roads) as blocked
@@ -56,7 +49,7 @@ function mark_node_collisions() {
         for (var j = 0; j < array_length(node.connections); j++) {
             var other_node = MAP.map_nodes[node.connections[j]];
             mark_line_area(node.x, node.y, other_node.x, other_node.y, 75, "free"); // Road width
-            mark_asset_line_area(node.x, node.y, other_node.x, other_node.y, 5+irandom(15), new static_asset(0, 0, "path")); // Road width
+            mark_asset_line_area(node.x, node.y, other_node.x, other_node.y, 5+irandom(15), new static_asset(0, 0, 0, 0,"path")); // Road width
         }
     }
 }
@@ -65,12 +58,16 @@ function is_position_walkable(x, y) {
     var grid_x = floor(x / MAP.collision_grid_cell_size);
     var grid_y = floor(y / MAP.collision_grid_cell_size);
     
-    if (grid_x >= 0 && grid_x < MAP.collision_grid_size && 
-        grid_y >= 0 && grid_y < MAP.collision_grid_size ) {
+    if (is_valid_grid_cell(grid_x, grid_y)) {
         return (MAP.collision_grid[grid_x][grid_y] == "free");
     }
     
     return false; // Block out-of-bounds positions
+}
+
+function is_valid_grid_cell(x, y) {
+    return (x >= 0 && x < MAP.collision_grid_size && 
+            y >= 0 && y < MAP.collision_grid_size);
 }
 
 function flag_at_position(_x, _y, _grid) {
@@ -113,9 +110,9 @@ function mark_line_area(x1, y1, x2, y2, width, _type) {
     }
 }
 
-function mark_square_area_grid(x1, y1, x2, y2, _type) {
-    var grid_width = array_length(MAP.collision_grid);
-    var grid_height = array_length(MAP.collision_grid[0]);
+function mark_square_area_grid(grid, x1, y1, x2, y2, _type) {
+    var grid_width = array_length(grid);
+    var grid_height = array_length(grid[0]);
     
     // Clamp coordinates to grid bounds
     var start_x = clamp(x1, 0, grid_width - 1);
@@ -125,7 +122,24 @@ function mark_square_area_grid(x1, y1, x2, y2, _type) {
     
     for (var xx = start_x; xx < end_x; xx++) {
         for (var yy = start_y; yy < end_y; yy++) {
-            MAP.collision_grid[xx][yy] = _type;
+            grid[xx][yy] = _type;
+        }
+    }
+}
+
+function mark_square_area_grid_filter(grid, x1, y1, x2, y2, _type, _filter) {
+    var grid_width = array_length(grid);
+    var grid_height = array_length(grid[0]);
+    
+    // Clamp coordinates to grid bounds
+    var start_x = clamp(x1, 0, grid_width - 1);
+    var start_y = clamp(y1, 0, grid_height - 1);
+    var end_x = clamp(x2+1, 0, grid_width);
+    var end_y = clamp(y2+1, 0, grid_height);
+    
+    for (var xx = start_x; xx < end_x; xx++) {
+        for (var yy = start_y; yy < end_y; yy++) {
+            if (grid[xx][yy] == _filter) grid[xx][yy] = _type;
         }
     }
 }
@@ -252,14 +266,12 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
     var center_grid_x = floor(center_x / MAP.collision_grid_cell_size);
     var center_grid_y = floor(center_y / MAP.collision_grid_cell_size);
     
-	gpu_set_blendmode(bm_subtract);
     for (var dx = -grid_radius; dx <= grid_radius; dx++) {
         for (var dy = -grid_radius; dy <= grid_radius; dy++) {
             var grid_x = center_grid_x + dx;
             var grid_y = center_grid_y + dy;
             
-            if (grid_x >= 0 && grid_x < MAP.collision_grid_size && 
-                grid_y >= 0 && grid_y < MAP.collision_grid_size) {
+            if (is_valid_grid_cell(grid_x, grid_y)) {
                 
                 // Check if this grid cell is within the circle
                 var world_x = grid_x * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
@@ -278,13 +290,13 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
 	// now make rocks to cover outside map area
 	grid_radius += 1;
 	radius += MAP.collision_grid_cell_size;
+	gpu_set_blendmode(bm_subtract);
 	for (var dx = -grid_radius; dx <= grid_radius; dx++) {
         for (var dy = -grid_radius; dy <= grid_radius; dy++) {
             var grid_x = center_grid_x + dx;
             var grid_y = center_grid_y + dy;
             
-            if (grid_x >= 0 && grid_x < MAP.collision_grid_size && 
-                grid_y >= 0 && grid_y < MAP.collision_grid_size) {
+            if (is_valid_grid_cell(grid_x, grid_y)) {
                 
                 // Check if this grid cell is within the circle
                 var world_x = grid_x * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
@@ -294,7 +306,7 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
 						var edge = MAP.collision_grid[grid_x][grid_y] == "outside" ? true : false;
 						MAP.collision_grid[grid_x][grid_y] = "edge";
 						var cell = MAP.collision_grid_cell_size;
-						MAP.assets_grid[grid_x][grid_y] = create_rock(grid_x*cell +cell/2, grid_y*cell+cell/2, MAP.dungeon_rocks[irandom(array_length(MAP.dungeon_rocks)-1)], edge);
+						MAP.assets_grid[grid_x][grid_y] = create_rock(grid_x*cell +cell/2, grid_y*cell+cell/2, grid_x, grid_y, MAP.dungeon_rocks[irandom(array_length(MAP.dungeon_rocks)-1)], edge);
 					}
 					var cell = MAP.collision_grid_cell_size;
 					var fx = grid_x*cell;
@@ -310,8 +322,9 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
             }
         }
     }
-	
 	gpu_set_blendmode(bm_normal);
+	// pad new edges
+	pad_edges_area(center_grid_x-grid_radius, center_grid_y-grid_radius, center_grid_x+grid_radius, center_grid_y+grid_radius);
 }
 
 
@@ -464,7 +477,7 @@ function calculate_path_color(node, nodes) {
         
     // Create color gradient: dark -> light -> dark
     var t = (sin(dist / max_dist * 2 * pi) + 1) / 2; // Sine wave for smooth transitions
-    return make_color_hsv(0, 0, lerp(.4, .55, t)*255);
+    return make_color_hsv(0, 0, lerp(.35, .5, t)*255);
 }
 
 function is_too_close_to_any_node(nodes, _x, _y, min_distance) {
@@ -533,24 +546,48 @@ function find_closest_node(_x, _y) {
 
 #region assets
 
-function static_asset(_x, _y, _type) constructor {
+function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	x = _x;
 	y = _y;
+	grid_x = _grid_x;
+	grid_y = _grid_y;
     type = _type;
     sprite_index = undefined;
+	image_index = 0;
+	image_speed = 1/60;
 	xscale = 1;
+	yscale = 1;
 	scale = 1;
 	color = c_white;
+	alpha = 1;
+	update_function = undefined;
+	destroy_function = undefined;
+	destroyed = false;
+	
     static draw = function(_x = x, _y = y, _scale=scale) {
-        draw_sprite_ext(sprite_index, 0, _x, _y, _scale*xscale, _scale, 0, color, 1);
+        draw_sprite_ext(sprite_index, image_index, _x, _y, _scale*xscale, _scale*yscale, 0, color, alpha);
+		image_index += image_speed;
+		if (image_index > sprite_get_number(sprite_index)) image_index = 0;
     }
+	static update = function() {
+		if (update_function != undefined) update_function(self);
+	}
 	static clear = function(_array=MAP.static_assets) {
-		var _f = function(_element, _index) {
-		    return (_element == self);
+		if (_array == MAP.static_assets) {
+			MAP.static_assets[grid_x][grid_y] = undefined;
+			unpad_edges_cell(grid_x, grid_y);
+		} else {
+			var _f = function(_element, _index) {
+				return (_element == self);
+			}
+			var _index = array_find_index(_array, _f);
+			if (_index != -1) {
+				array_delete(_array, _index, 1);
+			}
 		}
-		var _index = array_find_index(_array, _f);
-		if (_index != -1) {
-			array_delete(_array, _index, 1);
+		if (destroy_function != undefined and !destroyed) {
+			destroyed = true;
+			destroy_function(self);
 		}
 	}
 }
@@ -619,7 +656,7 @@ function place_rocks_around_edges(rock_types) {
                             
 							if (MAP.assets_grid[i][j] == undefined) {
 								var edge = is_collision_shape_edge(MAP.collision_grid, i, j).is_edge;
-								MAP.assets_grid[i][j] = create_rock(rock_x, rock_y, rock_types[irandom(array_length(rock_types)-1)], edge);
+								MAP.assets_grid[i][j] = create_rock(rock_x, rock_y, i, j, rock_types[irandom(array_length(rock_types)-1)], edge);
 							}
 							break; // Only need one rock per edge cell
                         }
@@ -629,15 +666,16 @@ function place_rocks_around_edges(rock_types) {
         }
     }
 }
-function create_rock(_x, _y, rock_type, _edge) {
+function create_rock(_x, _y, _grid_x, _grid_y, rock_type, _edge) {
     
 	var _yy = _y;
-	if (is_position_walkable(_x, _y-MAP.collision_grid_cell_size)) {
-		if(flag_at_position(_x, _y-MAP.collision_grid_cell_size, MAP.collision_grid) == "outside") _yy += 5*MAP.collision_grid_cell_size;
+	var cell = MAP.collision_grid_cell_size;
+	if (is_position_walkable(_x, _y-cell)) {
+		if(flag_at_position(_x, _y+cell, MAP.collision_grid) != "free") _yy += cell;
 	}
 	
 	var _scale = _edge ? random_range(1, 1.5) : random_range(.5, 1.25);
-	var rock = new static_asset(_x, _yy, "rock");
+	var rock = new static_asset(_x, _yy, _grid_x, _grid_y, "rock");
 	rock.scale = _scale;
 	rock.sprite_index = rock_type.sprite;
 	rock.xscale = choose(-1, 1);
@@ -646,20 +684,13 @@ function create_rock(_x, _y, rock_type, _edge) {
 	insert_static_asset(rock);
 	
 	// flag collision grid
-	MAP.collision_grid[to_grid(_x, MAP.collision_grid_cell_size)][to_grid(_y, MAP.collision_grid_cell_size)] = "edge";
+	MAP.collision_grid[_grid_x][_grid_y] = "edge";
 	
     return rock;
 }
 
 function insert_static_asset(asset) {
-	var depth_index = 0;
-	for (var i=0; i<array_length(MAP.static_assets); i++) {
-		if (MAP.static_assets[i].y > asset.y) {
-			depth_index = i;
-			break;
-		}
-	}
-	array_insert(MAP.static_assets, depth_index, asset);
+	MAP.static_assets[asset.grid_x][asset.grid_y] = asset;
 }
 
 function place_connected_walls() {
@@ -670,7 +701,13 @@ function place_connected_walls() {
     var max_walls = MAP.size*3 + irandom(MAP.size*3);
     
     // Shuffle rocks to start from random positions
-    var shuffled_rocks = array_shuffle(MAP.static_assets);
+	var statics = [];
+	for (var i=0; i<array_length(MAP.static_assets); i++) {
+		for (var j=0;j<array_length(MAP.static_assets[i]); j++) {
+			if (MAP.static_assets[i][j] != undefined) array_push(statics, MAP.static_assets[i][j]);
+		}
+	}
+    var shuffled_rocks = array_shuffle(statics);
     
     for (var i = 0; i < array_length(shuffled_rocks); i++) {
 		if (walls_placed >= max_walls) break;
@@ -782,15 +819,11 @@ function is_rock_at_grid(grid_x, grid_y) {
 function create_wall(_x, _y, _type, grid_x, grid_y, _array) {
 	var _yy = _y;
 	
-    var wall = new static_asset(_x, _yy, "wall");
+    var wall = new static_asset(_x, _yy, grid_x, grid_y, "wall");
 	wall.sprite_index = get_wall_sprite(_type);
     
-    array_push(MAP.static_assets, wall);
+    insert_static_asset(wall);
 	
-	if (MAP.assets_grid[grid_x][grid_y] != undefined) {
-		MAP.assets_grid[grid_x][grid_y].clear();
-		MAP.assets_grid[grid_x][grid_y].clear(_array);
-	}
     MAP.assets_grid[grid_x][grid_y] = wall;
 }
 
@@ -811,6 +844,57 @@ function get_wall_sprite(type) {
         case "diagonal":   return dungeon_wall_45_block;
         default:           return dungeon_wall_0_block;
     }
+}
+
+
+function pad_edges() {
+	
+	var grid = MAP.collision_grid;
+	for (var i=0;i<array_length(MAP.collision_grid); i++) {
+		for (var j=0;j<array_length(MAP.collision_grid[i]); j++) {
+			if (MAP.collision_grid[i][j] == "edge") {
+				if (is_valid_grid_cell(i-1, j) && grid[i-1][j] == "free") grid[i-1][j] = "blocked";
+				if (is_valid_grid_cell(i+1, j) && grid[i+1][j] == "free") grid[i+1][j] = "blocked";
+				if (is_valid_grid_cell(i, j-1) && grid[i][j-1] == "free") grid[i][j-1] = "blocked";
+				if (is_valid_grid_cell(i, j+1) && grid[i][j+1] == "free") grid[i][j+1] = "blocked";
+			}
+		}
+	}
+	
+}
+
+function unpad_edges_cell(grid_x, grid_y) {
+	
+	var grid = MAP.collision_grid;
+	if (is_valid_grid_cell(grid_x-1, grid_y) && MAP.assets_grid[grid_x-1][grid_y] == undefined && grid[grid_x-1][grid_y] == "blocked") grid[grid_x-1][grid_y] = "free";
+	if (is_valid_grid_cell(grid_x+1, grid_y) && MAP.assets_grid[grid_x+1][grid_y] == undefined && grid[grid_x+1][grid_y] == "blocked") grid[grid_x+1][grid_y] = "free";
+	if (is_valid_grid_cell(grid_x, grid_y-1) && MAP.assets_grid[grid_x][grid_y-1] == undefined && grid[grid_x][grid_y-1] == "blocked") grid[grid_x][grid_y-1] = "free";
+	if (is_valid_grid_cell(grid_x, grid_y+1) && MAP.assets_grid[grid_x][grid_y+1] == undefined && grid[grid_x][grid_y+1] == "blocked") grid[grid_x][grid_y+1] = "free";
+	
+}
+
+function pad_edges_area(x1, y1, x2, y2) {
+	
+	var grid = MAP.collision_grid;
+	var grid_width = array_length(grid);
+    var grid_height = array_length(grid[0]);
+    
+    // Clamp coordinates to grid bounds
+    var start_x = clamp(x1, 0, grid_width - 1);
+    var start_y = clamp(y1, 0, grid_height - 1);
+    var end_x = clamp(x2+1, 0, grid_width);
+    var end_y = clamp(y2+1, 0, grid_height);
+	
+	for (var i=start_x; i<end_x; i++) {
+		for (var j=start_y; j<end_y; j++) {
+			if (grid[i][j] == "edge") {
+				if (is_valid_grid_cell(i-1, j) && grid[i-1][j] == "free") grid[i-1][j] = "blocked";
+				if (is_valid_grid_cell(i+1, j) && grid[i+1][j] == "free") grid[i+1][j] = "blocked";
+				if (is_valid_grid_cell(i, j-1) && grid[i][j-1] == "free") grid[i][j-1] = "blocked";
+				if (is_valid_grid_cell(i, j+1) && grid[i][j+1] == "free") grid[i][j+1] = "blocked";
+			}
+		}
+	}
 }
 
 #endregion
@@ -890,9 +974,11 @@ function place_main_assets() {
 	// place pillars
 	for (var i=0; i<array_length(MAP.map_nodes); i++) {
 		if (MAP.map_nodes[i].is_last) {
-			instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar);
+			instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar, {image_xscale : 1});
 		}
 	}
+	
+	instance_create_layer(MAP.map_nodes[1].x, MAP.map_nodes[1].y, "Instances", o_dungeon_campfire, {image_xscale : 1});
 	
 }
 

@@ -8,25 +8,65 @@ draw_background_surfaces();
 
 draw_background_fog();
 
-// draw static assets
-var player_drawn = false;
-for (var i =0; i < array_length(static_assets); i++) {
-	if (!player_drawn && static_assets[i].y < PLAYER.position.y && i < array_length(static_assets)-1 && static_assets[i+1].y > PLAYER.position.y) {
-		PLAYER.character_main.draw();
-		player_drawn = true;
-	}
-	static_assets[i].draw();
-}
-if (!player_drawn) PLAYER.character_main.draw();
 
-draw_fog();
+#region draw static and dynamic assets
+
+// find camera bounds on grid
+var cell = collision_grid_cell_size;
+var padding = 9;
+var start_x = max(0, floor((CAMERA.x - CAMERA.world_width/2)/cell) -padding);
+var start_y = max(0, floor((CAMERA.y - CAMERA.world_height/2)/cell) -padding);
+var end_x = min(collision_grid_size, floor((CAMERA.x + CAMERA.world_width/2)/cell) +padding);
+var end_y = min(collision_grid_size, floor((CAMERA.y + CAMERA.world_height/2)/cell) +padding);
+
+// grab all static asssets inside camera bounds
+var culled_array = [];
+for (var yy =start_y; yy < end_y; yy++) {
+	for (var xx =start_x; xx < end_x; xx++) {
+		if (static_assets[xx][yy] != undefined) array_push(culled_array, static_assets[xx][yy]);
+	}
+}
+sort_by_y(culled_array);
+// start drawing
+var static_index = 0;
+var dynamic_index = 0;
+var static_count = array_length(culled_array);
+var dynamic_count = array_length(dynamic_assets);
+CAMERA.assets_drawn = static_count + dynamic_count;
+// Merge draw static and dynamic assets in correct depth order
+while (static_index < static_count && dynamic_index < dynamic_count) {
+    if (culled_array[static_index].y <= dynamic_assets[dynamic_index].y) {
+        // Static asset should draw first (lower Y = further back)
+        culled_array[static_index].draw();
+        static_index++;
+    } else {
+        // Dynamic asset should draw first
+        dynamic_assets[dynamic_index].draw();
+        dynamic_index++;
+    }
+}
+// Draw any remaining static assets
+while (static_index < static_count) {
+    culled_array[static_index].draw();
+    static_index++;
+}
+// Draw any remaining dynamic assets  
+while (dynamic_index < dynamic_count) {
+    dynamic_assets[dynamic_index].draw();
+    dynamic_index++;
+}
+
+#endregion
+
+
+if (!DEV) draw_fog();
 fog_sprite_index += 1/60;
 if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 
-// draw map dev visuals
+#region draw map dev visuals
 if (!DEV) exit;
 
-// draw islands areas
+// draw stuff
 for (var i=0; i<array_length(collision_grid); i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
@@ -67,3 +107,4 @@ for (var i = 0; i < array_length(map_nodes); i++) {
     }
 }
     
+#endregion

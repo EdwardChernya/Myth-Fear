@@ -2,6 +2,7 @@
 // You can write your code in this editor
 
 default_zoom = 4;
+min_zoom = 2;
 zoom = 2;
 smooth_zoom = 4;
 
@@ -11,3 +12,5 @@ world_width = width/zoom;
 world_height = height/zoom;
 
 is_fullscreen = false;
+
+assets_drawn = 0;

@@ -90,7 +90,7 @@ function draw_background_fog() {
 		draw_surface(MAP.background_fog_surfaces[i], _x, _y);
 	}
 }
-function draw_fog() {
+function draw_fog_lineofsight() {
 	
 	// poke holes in vision sprite
 	var surface_width = sprite_get_width(soft_round_vision);
@@ -192,10 +192,60 @@ function draw_fog() {
 	}
 	
 	surface_free(vision_surface);
+	surface_free(temp_surface);
+}
+function draw_fog() {
+
+	for (var i=0; i<array_length(MAP.fog_surfaces); i++) {
+		if (!surface_exists(MAP.fog_surfaces[i])) {
+			generate_fog_surfaces();
+			break;
+		}
+		var _x = (i % MAP.surfaces_per_row) * MAP.background_surface_size;
+		var _y = (i div MAP.surfaces_per_row) * MAP.background_surface_size;
+		
+		
+		surface_set_target(MAP.fog_surfaces[i]);
+		
+		var fog_width = sprite_get_width(bg_stars_256);
+		var tile_n = ceil(MAP.background_surface_size/fog_width);
+		// Draw tiled fog background
+		for (var xx = 0; xx < tile_n; xx++) {
+		    for (var yy = 0; yy < tile_n; yy++) {
+		        var draw_x = xx * fog_width;
+		        var draw_y = yy * fog_width;
+		        draw_sprite_ext(bg_stars_256, MAP.fog_sprite_index, draw_x, draw_y, 1, 1, 0, c_white, MAP.fog_revealed_alpha);
+		    }
+		}
+		
+		// subtract vision and any assets that need to not have fog on top (dynamic assets)
+		gpu_set_blendmode(bm_subtract);
+		var scale = PLAYER.character_main.stats.vision/200;
+		repeat(1) draw_sprite_ext(soft_round_vision, 0, PLAYER.position.x-_x, PLAYER.position.y-_y, scale, scale, 0, c_white, 1);
+		for (var j=0;j<array_length(MAP.dynamic_assets);j++) {
+			var asset = MAP.dynamic_assets[j];
+			if (asset.visible) {
+				draw_sprite_ext(asset.sprite_index, asset.image_index, asset.x-_x, asset.y-_y, asset.image_xscale, asset.image_yscale, 0, c_white, 1);
+			}
+		}
+		surface_reset_target();
+		
+		surface_set_target(MAP.permafog_surfaces[i]);
+		if (PLAYER.revealing_fog > 0) draw_sprite_ext(soft_round_vision, 0, PLAYER.position.x-_x, PLAYER.position.y-_y, scale*.9, scale*.9, 0, c_white, 1);
+		surface_reset_target();
+		
+		gpu_set_blendmode(bm_normal);
+		
+		 
+		draw_surface(MAP.fog_surfaces[i], _x, _y);
+		if (!DEV) draw_surface(MAP.permafog_surfaces[i], _x, _y);
+		
+	}
 }
 
 function reveal_fog(center_x, center_y, radius, height_ratio) {
-    var cell = MAP.collision_grid_cell_size;
+    
+	var cell = MAP.collision_grid_cell_size;
 	var grid_radius = ceil(radius / cell);
     var center_grid_x = floor(center_x / cell);
     var center_grid_y = floor(center_y / cell);
@@ -206,10 +256,7 @@ function reveal_fog(center_x, center_y, radius, height_ratio) {
             var grid_x = center_grid_x + dx;
             var grid_y = center_grid_y + dy;
             
-            if (grid_x >= 0 && grid_x < MAP.collision_grid_size && 
-                grid_y >= 0 && grid_y < MAP.collision_grid_size) {
-                
-                // Check if this grid cell is within the circle
+            if (is_valid_grid_cell(grid_x, grid_y)) {
                 var world_x = grid_x * cell + cell / 2;
                 var world_y = grid_y * cell + cell / 2;
                 if (point_in_ellipse(world_x, world_y, center_x, center_y, radius+cell, height_ratio)) {
@@ -218,48 +265,69 @@ function reveal_fog(center_x, center_y, radius, height_ratio) {
             }
         }
     }
-	gpu_set_blendmode(bm_subtract);
+	
 	// reveal cells
+	var assets_to_reveal = [];
     for (var dx = -grid_radius; dx <= grid_radius; dx++) {
         for (var dy = -grid_radius; dy <= grid_radius; dy++) {
             var grid_x = center_grid_x + dx;
             var grid_y = center_grid_y + dy;
             
-            if (grid_x >= 0 && grid_x < MAP.collision_grid_size && 
-                grid_y >= 0 && grid_y < MAP.collision_grid_size) {
+            if (is_valid_grid_cell(grid_x, grid_y)) {
                 
                 // Check if this grid cell is within the circle
                 var world_x = grid_x * cell + cell / 2;
                 var world_y = grid_y * cell + cell / 2;
                 if (point_in_ellipse(world_x, world_y, center_x, center_y, radius, height_ratio)) {
                     if (MAP.collision_grid[grid_x][grid_y] == "free") {
-						MAP.fog_grid[grid_x][grid_y] = "vision";
+						if (MAP.fog_grid[grid_x][grid_y] != "static vision") MAP.fog_grid[grid_x][grid_y] = "vision";
 					} else if (MAP.fog_grid[grid_x][grid_y] == "fog" && MAP.assets_grid[grid_x][grid_y] != undefined) {
 						MAP.fog_grid[grid_x][grid_y] = "revealed";
 						// and reveal any asset that is in the cell
-						var fx = grid_x*cell;
-						var fy = grid_y*cell;
-						// Find which surface this point belongs to
-						var surface_x = floor(fx / MAP.background_surface_size);
-						var surface_y = floor(fy / MAP.background_surface_size);
-						var surf_index = find_bg_surf_index(fx, fy);
-						surface_set_target(MAP.permafog_surfaces[surf_index]);
-						gpu_set_fog(true, c_gray, 0, 1);
-						fx = MAP.assets_grid[grid_x][grid_y].x;
-						fy = MAP.assets_grid[grid_x][grid_y].y;
-						MAP.assets_grid[grid_x][grid_y].draw(fx-surface_x*MAP.background_surface_size, fy-surface_y*MAP.background_surface_size);
-						gpu_set_fog(false, c_black, 0, 1);
-						surface_reset_target();
+						array_push(assets_to_reveal, [grid_x, grid_y]);
+					} else if (MAP.collision_grid[grid_x][grid_y] == "blocked" && MAP.assets_grid[grid_x][grid_y] == undefined) {
+						MAP.fog_grid[grid_x][grid_y] = "vision";
 					}
                 }
             }
+        }
+    }
+	// Draw revealed assets to surfaces (outside the main loop for performance)
+    if (array_length(assets_to_reveal) > 0) {
+        draw_revealed_assets_to_surfaces(assets_to_reveal);
+    }
+}
+
+
+function draw_revealed_assets_to_surfaces(assets_array) {
+    var cell_size = MAP.collision_grid_cell_size;
+    
+	gpu_set_blendmode(bm_subtract);
+    for (var i = 0; i < array_length(assets_array); i++) {
+        var grid_pos = assets_array[i];
+        var grid_x = grid_pos[0];
+        var grid_y = grid_pos[1];
+        
+        var world_x = grid_x * cell_size;
+        var world_y = grid_y * cell_size;
+        
+        var surf_index = find_bg_surf_index(world_x, world_y);
+        if (surf_index != -1 && surface_exists(MAP.permafog_surfaces[surf_index])) {
+            var surface_x = floor(world_x / MAP.background_surface_size);
+            var surface_y = floor(world_y / MAP.background_surface_size);
+            
+            surface_set_target(MAP.permafog_surfaces[surf_index]);
+            var asset = MAP.assets_grid[grid_x][grid_y];
+            asset.draw(asset.x - surface_x * MAP.background_surface_size, 
+                      asset.y - surface_y * MAP.background_surface_size);
+            surface_reset_target();
         }
     }
 	gpu_set_blendmode(bm_normal);
 }
 
 
-
+// line of sight stuff
 function reveal_fog_lineofsight(center_x, center_y, radius, height_ratio) {
 	
     var cell_size = MAP.collision_grid_cell_size;
@@ -277,11 +345,8 @@ function reveal_fog_lineofsight(center_x, center_y, radius, height_ratio) {
             if (is_valid_grid_cell(grid_x, grid_y)) {
                 var world_x = grid_x * cell_size + cell_size / 2;
                 var world_y = grid_y * cell_size + cell_size / 2;
-                
                 if (point_in_ellipse(world_x, world_y, center_x, center_y, radius + cell_size, height_ratio)) {
-                    if (MAP.fog_grid[grid_x][grid_y] == "vision") {
-                        MAP.fog_grid[grid_x][grid_y] = "revealed";
-                    }
+                    if (MAP.fog_grid[grid_x][grid_y] == "vision") MAP.fog_grid[grid_x][grid_y] = "revealed";
                 }
             }
         }
@@ -323,38 +388,11 @@ function reveal_fog_lineofsight(center_x, center_y, radius, height_ratio) {
     }
 }
 
-function draw_revealed_assets_to_surfaces(assets_array) {
-    var cell_size = MAP.collision_grid_cell_size;
-    
-	gpu_set_blendmode(bm_subtract);
-    for (var i = 0; i < array_length(assets_array); i++) {
-        var grid_pos = assets_array[i];
-        var grid_x = grid_pos[0];
-        var grid_y = grid_pos[1];
-        
-        var world_x = grid_x * cell_size;
-        var world_y = grid_y * cell_size;
-        
-        var surf_index = find_bg_surf_index(world_x, world_y);
-        if (surf_index != -1 && surface_exists(MAP.permafog_surfaces[surf_index])) {
-            var surface_x = floor(world_x / MAP.background_surface_size);
-            var surface_y = floor(world_y / MAP.background_surface_size);
-            
-            surface_set_target(MAP.permafog_surfaces[surf_index]);
-            var asset = MAP.assets_grid[grid_x][grid_y];
-            asset.draw(asset.x - surface_x * MAP.background_surface_size, 
-                      asset.y - surface_y * MAP.background_surface_size);
-            surface_reset_target();
-        }
-    }
-	gpu_set_blendmode(bm_normal);
-}
-
 function update_vision(player_x, player_y, vision_radius, fov_angle = 360, height_ratio) {
     var cell_size = MAP.collision_grid_cell_size;
     
     // Cast rays to find blocking cells
-    var ray_count = 72; // More rays = smoother cones
+    var ray_count = 36; // More rays = smoother cones
     for (var i = 0; i < ray_count; i++) {
         var angle = (i / ray_count) * fov_angle;
         cast_vision_ray_ellipse(player_x, player_y, angle, vision_radius, height_ratio);
@@ -417,9 +455,4 @@ function get_ellipse_radius_at_angle(radius_x, radius_y, angle) {
     
     if (denominator == 0) return 0;
     return (radius_x * radius_y) / denominator;
-}
-
-function is_valid_grid_cell(x, y) {
-    return (x >= 0 && x < MAP.collision_grid_size && 
-            y >= 0 && y < MAP.collision_grid_size);
 }

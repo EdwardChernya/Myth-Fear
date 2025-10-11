@@ -9,7 +9,7 @@ DEBUG.update();
 
 if (room == rm_main_menu) {
 	
-	if (point_in_rectangle(MOUSE.x, MOUSE.y, CAMERA.width/2-50, CAMERA.height/2-25, CAMERA.width/2+50, CAMERA.height/2+25)) {
+	if (point_in_rectangle(MOUSE.x, MOUSE.y, CAMERA.width/2-75, CAMERA.height/2-25, CAMERA.width/2+75, CAMERA.height/2+45)) {
 		if (_touch_down()) {
 			DEBUG.add("generating nodes", c_olive);
 			MAP.size = 32;

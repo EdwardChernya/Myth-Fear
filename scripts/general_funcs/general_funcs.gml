@@ -63,6 +63,23 @@ function Vector2(_x=0, _y=_x) constructor {
 	}
 }
 
+// arrays
+function array_clear(array, entry) {
+	var _f = function(_element, _index) {
+		return (_element == entry);
+	}
+	var _index = array_find_index(array, _f);
+	if (_index != -1) {
+		array_delete(array, _index, 1);
+	}
+}
+function find_array_index(array, entry) {
+	for (var i=0; i<array_length(array); i++) {
+		if (array[i] == entry) return i;
+	}
+	return -1;
+}
+
 // wrappers
 
 function _touch_down() {
@@ -94,6 +111,8 @@ function to_screen(_x, _y) {
 function floating_text_manager() constructor {
 	
 	text_array = [];
+	x = 0;
+	y = .6;
 	max_lines = 2000;
 	max_lines_visible = 30;
 	visible = true;
@@ -120,7 +139,7 @@ function floating_text_manager() constructor {
 			draw_set_color(text_array[i].color);
 			draw_set_alpha(text_array[i].life/60);
 			if (DEV) draw_set_alpha(1);
-			draw_text(0, CAMERA.height*.6 - i*24, text_array[i].text);
+			draw_text(x, CAMERA.height*y - i*24, text_array[i].text);
 		}
 		draw_set_alpha(1);
 	}

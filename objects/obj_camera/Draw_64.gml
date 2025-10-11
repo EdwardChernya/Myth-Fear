@@ -16,6 +16,10 @@ draw_set_halign(fa_left);
 if (DEV) {
 	draw_text(64, 0, $"{width} | {height}");
 	draw_text(64, 24, "developer");
+	
+	draw_set_halign(fa_right);
+	draw_text(CAMERA.width, 200, $"assets drawn {assets_drawn}");
+	
 }
 
 if (is_fullscreen) {
@@ -38,7 +42,9 @@ if (DEV) {
 	draw_text(MOUSE.x, MOUSE.y, $"{to_grid(mouse_x, cell)} {to_grid(mouse_y, cell)}");
 	draw_text(MOUSE.x, MOUSE.y-24, $"{MAP.collision_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
 	draw_text(MOUSE.x, MOUSE.y-48, $"{MAP.fog_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
+	var asset = MAP.assets_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)];
+	if (asset != undefined) draw_text(MOUSE.x, MOUSE.y-72, $"{asset.type}");
 	var p1 = to_screen(grid_x*cell, grid_y*cell);
 	var p2 = to_screen(grid_x*cell+cell, grid_y*cell+cell)
-	draw_rectangle(p1.x, p1.y, p2.x-1, p2.y-1, true);
+	if (zoom >= min_zoom) draw_rectangle(p1.x, p1.y, p2.x-1, p2.y-1, true);
 }

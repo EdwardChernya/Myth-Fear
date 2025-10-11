@@ -23,7 +23,9 @@ if (instance_exists(PLAYER) and room == Room1) {
 	
 	if (mouse_wheel_down()) smooth_zoom -= 1;
 	if (mouse_wheel_up()) smooth_zoom += 1;
-	var zoom_min = DEV ? 0.5 : 2;
-	smooth_zoom = clamp(smooth_zoom, zoom_min, 10);
+	var wide_res = max(width, height);
+	var minimum_zoom = max(2, ceil(wide_res/room_width));
+	min_zoom = DEV ? 0.5 : minimum_zoom;
+	smooth_zoom = clamp(smooth_zoom, min_zoom, 10);
 	zoom += (smooth_zoom-zoom)*.1;
 }
