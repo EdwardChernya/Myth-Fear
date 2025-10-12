@@ -26,6 +26,7 @@
     {"name":"o_dungeon_barrel","order":4,"path":"objects/o_dungeon_barrel/o_dungeon_barrel.yy",},
     {"name":"o_dungeon_campfire","order":6,"path":"objects/o_dungeon_campfire/o_dungeon_campfire.yy",},
     {"name":"o_dungeon_crate","order":3,"path":"objects/o_dungeon_crate/o_dungeon_crate.yy",},
+    {"name":"o_dungeon_tent","order":7,"path":"objects/o_dungeon_tent/o_dungeon_tent.yy",},
     {"name":"obj_camera","order":3,"path":"objects/obj_camera/obj_camera.yy",},
     {"name":"obj_HTML_FS","order":3,"path":"objects/obj_HTML_FS/obj_HTML_FS.yy",},
     {"name":"obj_map","order":2,"path":"objects/obj_map/obj_map.yy",},

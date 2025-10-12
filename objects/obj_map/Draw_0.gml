@@ -5,11 +5,9 @@ if (room != Room1) exit;
 
 // draw background surfaces
 draw_background_surfaces();
-
 draw_background_fog();
 
-
-#region draw static and dynamic assets
+#region draw static and dynamic assets with culling
 
 // find camera bounds on grid
 var cell = collision_grid_cell_size;
@@ -58,12 +56,13 @@ while (dynamic_index < dynamic_count) {
 
 #endregion
 
-
+// draw fog
 if (!DEV) draw_fog();
 fog_sprite_index += 1/60;
 if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 
-#region draw map dev visuals
+
+#region dev visuals
 if (!DEV) exit;
 
 // draw stuff

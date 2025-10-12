@@ -15,7 +15,7 @@ if (room == rm_main_menu) {
 			MAP.size = 32;
 			MAP.collision_grid_size = MAP.size*MAP.collision_scale;
 			MAP.collision_grid_cell_size = TILE/MAP.collision_scale;
-			init_map("dungeon");
+			init_map("underworld");
 		}
 		button_text = "> generate map >";
 	} else {

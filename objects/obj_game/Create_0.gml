@@ -1,11 +1,15 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-#macro VERSION "01a004dev"
+#macro VERSION "01a005dev"
 global.dev = false;
 #macro DEV global.dev
 global.gamespeed = 1;
 game_set_speed(60, gamespeed_fps);
+
+global.game_paused = false;
+#macro PAUSED global.game_paused
+
 
 instance_create_layer(0, 0, "Instances", obj_player);
 instance_create_layer(0, 0, "Instances", obj_camera);
@@ -31,4 +35,5 @@ global.debug_text = new floating_text_manager();
 
 
 DEBUG.add("game started", c_olive);
+
 

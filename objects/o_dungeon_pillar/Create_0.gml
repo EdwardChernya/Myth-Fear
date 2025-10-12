@@ -3,8 +3,16 @@
 
 event_inherited();
 
+
+if (!is_area_within_bounds(grid_x-1, grid_y-1, grid_x+1, grid_y)) {
+	instance_destroy();
+	exit;
+}
+
 var _x = grid_x*cell + 7;
 var _y = grid_y*cell;
+
+destroy_square_area_grid(grid_x-1, grid_y-1, grid_x+1, grid_y);
 
 var asset = new static_asset(_x, _y, grid_x, grid_y, "pillar");
 asset.sprite_index = sprite_index;

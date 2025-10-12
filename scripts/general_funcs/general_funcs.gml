@@ -231,8 +231,8 @@ function is_collision_shape_edge(grid, _x, _y) {
 	return { is_edge : is_edge, hedgeR : hedgeR, hedgeL : hedgeL, vedgeU : vedgeU, vedgeD : vedgeD};
 }
 
-function to_grid(_p, _cell_size) {
-	return clamp(floor(_p/_cell_size), 0, MAP.collision_grid_size-1);
+function to_grid(_p, _cell_size=MAP.collision_grid_cell_size, _grid_size=MAP.collision_grid_size) {
+	return clamp(floor(_p/_cell_size), 0, _grid_size-1);
 }
 
 

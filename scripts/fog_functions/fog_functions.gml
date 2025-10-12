@@ -237,8 +237,8 @@ function draw_fog() {
 		gpu_set_blendmode(bm_normal);
 		
 		 
-		draw_surface(MAP.fog_surfaces[i], _x, _y);
 		if (!DEV) draw_surface(MAP.permafog_surfaces[i], _x, _y);
+		draw_surface(MAP.fog_surfaces[i], _x, _y);
 		
 	}
 }

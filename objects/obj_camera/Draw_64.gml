@@ -18,7 +18,8 @@ if (DEV) {
 	draw_text(64, 24, "developer");
 	
 	draw_set_halign(fa_right);
-	draw_text(CAMERA.width, 200, $"assets drawn {assets_drawn}");
+	draw_text(CAMERA.width, 200, MAP.map_name);
+	draw_text(CAMERA.width, 224, $"dynamic {array_length(MAP.dynamic_assets)} total {assets_drawn}");
 	
 }
 
@@ -44,6 +45,8 @@ if (DEV) {
 	draw_text(MOUSE.x, MOUSE.y-48, $"{MAP.fog_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)]}");
 	var asset = MAP.assets_grid[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)];
 	if (asset != undefined) draw_text(MOUSE.x, MOUSE.y-72, $"{asset.type}");
+	var asset = MAP.static_assets[to_grid(mouse_x, cell)][to_grid(mouse_y, cell)];
+	if (asset != undefined) draw_text(MOUSE.x, MOUSE.y-96, $"{asset.type}");
 	var p1 = to_screen(grid_x*cell, grid_y*cell);
 	var p2 = to_screen(grid_x*cell+cell, grid_y*cell+cell)
 	if (zoom >= min_zoom) draw_rectangle(p1.x, p1.y, p2.x-1, p2.y-1, true);

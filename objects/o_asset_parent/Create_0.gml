@@ -2,5 +2,11 @@
 // You can write your code in this editor
 
 cell = MAP.collision_grid_cell_size;
-grid_x = to_grid(x, cell);
-grid_y = to_grid(y, cell);
+
+grid_x = floor(x/cell);
+grid_y = floor(y/cell);
+
+if (!is_valid_grid_cell(grid_x, grid_y)) {
+	instance_destroy();
+	exit;
+}

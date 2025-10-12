@@ -3,8 +3,16 @@
 
 event_inherited();
 
+
+if (!is_area_within_bounds(grid_x-1, grid_y, grid_x, grid_y)) {
+	instance_destroy();
+	exit;
+}
+
 var _x = grid_x*cell;
 var _y = grid_y*cell + 7;
+
+destroy_square_area_grid(grid_x-1, grid_y, grid_x, grid_y);
 
 var asset = new static_asset(_x, _y, grid_x, grid_y, "barrel large");
 asset.sprite_index = sprite_index;

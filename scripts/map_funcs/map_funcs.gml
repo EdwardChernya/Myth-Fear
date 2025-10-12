@@ -1,6 +1,6 @@
 // script goes brrrrrr
-function init_map(_type){
-	MAP.type = _type;
+function init_map(_world){
+	MAP.world = _world;
 	
 	// set room size
 	room_set_width(Room1, MAP.size*TILE);
@@ -29,18 +29,19 @@ function init_grids() {
 	MAP.assets_grid = assets_grid;
 	MAP.fog_grid = fog_grid;
 	MAP.static_assets = static_assets;
-    // Mark node areas as blocked
-    mark_node_collisions();
-    // flag stuff
-	flag_unwalkable_islands();
+	
 }
 
-function mark_node_collisions() { // roads and collisions
+function mark_node_collisions(node_size) { // roads and collisions
+	
+	var path_size = max(65, node_size/1.67);
+	
     // Mark areas around nodes as blocked
     for (var i = 0; i < array_length(MAP.map_nodes); i++) {
         var node = MAP.map_nodes[i];
-        mark_circle_area(node.x, node.y, 125, "free"); // Block radius around nodes
-		mark_asset_circle_area(node.x, node.y, 15 + irandom(15), new static_asset(0, 0, 0, 0, "path"));
+		
+        mark_circle_area(node.x, node.y, node_size, "free"); // Block radius around nodes
+		mark_asset_circle_area(node.x, node.y, node_size/8.3 + irandom(node_size/8.3), new static_asset(0, 0, 0, 0, "path"));
     }
     
     // Mark areas around connections (roads) as blocked
@@ -48,8 +49,8 @@ function mark_node_collisions() { // roads and collisions
         var node = MAP.map_nodes[i];
         for (var j = 0; j < array_length(node.connections); j++) {
             var other_node = MAP.map_nodes[node.connections[j]];
-            mark_line_area(node.x, node.y, other_node.x, other_node.y, 75, "free"); // Road width
-            mark_asset_line_area(node.x, node.y, other_node.x, other_node.y, 5+irandom(15), new static_asset(0, 0, 0, 0,"path")); // Road width
+            mark_line_area(node.x, node.y, other_node.x, other_node.y, path_size, "free"); // Road width
+            mark_asset_line_area(node.x, node.y, other_node.x, other_node.y, path_size/20+irandom(path_size/3), new static_asset(0, 0, 0, 0,"path")); // Road width
         }
     }
 }
@@ -262,10 +263,12 @@ function flood_fill_unwalkable(start_xx, start_yy, grid, visited, island_cells) 
 
 
 function destroy_circle_area(center_x, center_y, radius) { // and fill edge with rocks
-    var grid_radius = ceil(radius / MAP.collision_grid_cell_size);
-    var center_grid_x = floor(center_x / MAP.collision_grid_cell_size);
-    var center_grid_y = floor(center_y / MAP.collision_grid_cell_size);
+	var cell = MAP.collision_grid_cell_size;
+    var grid_radius = ceil(radius / cell);
+    var center_grid_x = floor(center_x / cell);
+    var center_grid_y = floor(center_y / cell);
     
+	// remove everything from radius
     for (var dx = -grid_radius; dx <= grid_radius; dx++) {
         for (var dy = -grid_radius; dy <= grid_radius; dy++) {
             var grid_x = center_grid_x + dx;
@@ -274,9 +277,11 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
             if (is_valid_grid_cell(grid_x, grid_y)) {
                 
                 // Check if this grid cell is within the circle
-                var world_x = grid_x * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
-                var world_y = grid_y * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
-                if (point_distance(center_x, center_y, world_x, world_y) <= radius) {
+                var world_x = grid_x * cell + cell / 2;
+                var world_y = grid_y * cell + cell / 2;
+                var center_world_x = center_grid_x * cell + cell / 2;
+                var center_world_y = center_grid_y * cell + cell / 2;
+                if (point_distance(center_world_x, center_world_y, world_x, world_y) <= radius) {
                     MAP.collision_grid[grid_x][grid_y] = "free";
 					if (MAP.assets_grid[grid_x][grid_y] != undefined) {
 						MAP.assets_grid[grid_x][grid_y].clear();
@@ -287,9 +292,9 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
         }
     }
 	
-	// now make rocks to cover outside map area
+	// now make rocks to cover a bit outside radius
 	grid_radius += 1;
-	radius += MAP.collision_grid_cell_size;
+	radius += cell;
 	gpu_set_blendmode(bm_subtract);
 	for (var dx = -grid_radius; dx <= grid_radius; dx++) {
         for (var dy = -grid_radius; dy <= grid_radius; dy++) {
@@ -299,9 +304,11 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
             if (is_valid_grid_cell(grid_x, grid_y)) {
                 
                 // Check if this grid cell is within the circle
-                var world_x = grid_x * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
-                var world_y = grid_y * MAP.collision_grid_cell_size + MAP.collision_grid_cell_size / 2;
-                if (point_distance(center_x, center_y, world_x, world_y) <= radius) {
+                var world_x = grid_x * cell + cell / 2;
+                var world_y = grid_y * cell + cell / 2;
+                var center_world_x = center_grid_x * cell + cell / 2;
+                var center_world_y = center_grid_y * cell + cell / 2;
+                if (point_distance(center_world_x, center_world_y, world_x, world_y) <= radius) {
                     if (MAP.collision_grid[grid_x][grid_y] == "outside" || MAP.collision_grid[grid_x][grid_y] == "island") {
 						var edge = MAP.collision_grid[grid_x][grid_y] == "outside" ? true : false;
 						MAP.collision_grid[grid_x][grid_y] = "edge";
@@ -327,6 +334,126 @@ function destroy_circle_area(center_x, center_y, radius) { // and fill edge with
 	pad_edges_area(center_grid_x-grid_radius, center_grid_y-grid_radius, center_grid_x+grid_radius, center_grid_y+grid_radius);
 }
 
+function destroy_ellipse_area(center_x, center_y, radius, height_ratio) { // and fill edge with rocks
+	var cell = MAP.collision_grid_cell_size;
+    var grid_radius = ceil(radius / cell);
+    var center_grid_x = floor(center_x / cell);
+    var center_grid_y = floor(center_y / cell);
+    
+	// remove everything from the actual radius
+    for (var dx = -grid_radius; dx <= grid_radius; dx++) {
+        for (var dy = -grid_radius; dy <= grid_radius; dy++) {
+            var grid_x = center_grid_x + dx;
+            var grid_y = center_grid_y + dy;
+            
+            if (is_valid_grid_cell(grid_x, grid_y)) {
+                
+                // Check if this grid cell is within the circle
+                var world_x = grid_x * cell + cell / 2;
+                var world_y = grid_y * cell + cell / 2;
+                var center_world_x = center_grid_x * cell + cell / 2;
+                var center_world_y = center_grid_y * cell + cell / 2;
+                if (point_in_ellipse(world_x, world_y, center_world_x, center_world_y, radius, height_ratio)) {
+                    MAP.collision_grid[grid_x][grid_y] = "free";
+					if (MAP.assets_grid[grid_x][grid_y] != undefined) {
+						MAP.assets_grid[grid_x][grid_y].clear();
+						MAP.assets_grid[grid_x][grid_y] = undefined;
+					}
+                }
+            }
+        }
+    }
+	
+	// now make rocks to cover a bit outside radius
+	grid_radius += 1;
+	radius += cell+cell/2;
+	gpu_set_blendmode(bm_subtract);
+	for (var dx = -grid_radius; dx <= grid_radius; dx++) {
+        for (var dy = -grid_radius; dy <= grid_radius; dy++) {
+            var grid_x = center_grid_x + dx;
+            var grid_y = center_grid_y + dy;
+            
+            if (is_valid_grid_cell(grid_x, grid_y)) {
+                
+                // Check if this grid cell is within the circle
+                var world_x = grid_x * cell + cell / 2;
+                var world_y = grid_y * cell + cell / 2;
+                var center_world_x = center_grid_x * cell + cell / 2;
+                var center_world_y = center_grid_y * cell + cell / 2;
+                if (point_in_ellipse(world_x, world_y, center_world_x, center_world_y, radius, height_ratio)) {
+                    if (MAP.collision_grid[grid_x][grid_y] == "outside" || MAP.collision_grid[grid_x][grid_y] == "island") {
+						var edge = MAP.collision_grid[grid_x][grid_y] == "outside" ? true : false;
+						MAP.collision_grid[grid_x][grid_y] = "edge";
+						var cell = MAP.collision_grid_cell_size;
+						MAP.assets_grid[grid_x][grid_y] = create_rock(grid_x*cell +cell/2, grid_y*cell+cell/2, grid_x, grid_y, MAP.dungeon_rocks[irandom(array_length(MAP.dungeon_rocks)-1)], edge);
+					}
+					var cell = MAP.collision_grid_cell_size;
+					var fx = grid_x*cell;
+					var fy = grid_y*cell;
+					// Find which surface this point belongs to
+					var surface_x = floor(fx / MAP.background_surface_size);
+					var surface_y = floor(fy / MAP.background_surface_size);
+					var surf_index = find_bg_surf_index(fx, fy);
+					surface_set_target(MAP.background_fog_surfaces[surf_index]);
+					draw_sprite(fog_cell, 0, fx-surface_x*MAP.background_surface_size, fy-surface_y*MAP.background_surface_size);
+					surface_reset_target();
+                }
+            }
+        }
+    }
+	gpu_set_blendmode(bm_normal);
+	// pad new edges
+	pad_edges_area(center_grid_x-grid_radius, center_grid_y-grid_radius, center_grid_x+grid_radius, center_grid_y+grid_radius);
+}
+
+function destroy_square_area_grid(x1, y1, x2, y2) {
+	var grid_size = MAP.collision_grid_size;
+    // Clamp coordinates to grid bounds
+    var start_x = clamp(x1, 0, grid_size - 1);
+    var start_y = clamp(y1, 0, grid_size - 1);
+    var end_x = clamp(x2+1, 0, grid_size);
+    var end_y = clamp(y2+1, 0, grid_size);
+    
+	// remove from actual area
+    for (var xx = start_x; xx < end_x; xx++) {
+        for (var yy = start_y; yy < end_y; yy++) {
+            MAP.collision_grid[xx][yy] = "free";
+			if (MAP.assets_grid[xx][yy] != undefined) {
+				MAP.assets_grid[xx][yy].clear();
+				MAP.assets_grid[xx][yy] = undefined;
+			}
+        }
+    }
+	
+	// place rocks on outter edge
+	start_x = clamp(x1-1, 0, grid_size - 1);
+	start_y = clamp(y1-1, 0, grid_size - 1);
+	end_x = clamp(x2+2, 0, grid_size);
+	end_y = clamp(y2+2, 0, grid_size);
+	var cell = MAP.collision_grid_cell_size;
+	gpu_set_blendmode(bm_subtract);
+	for (var xx = start_x; xx < end_x; xx++) {
+        for (var yy = start_y; yy < end_y; yy++) {
+            if (MAP.collision_grid[xx][yy] == "outside" || MAP.collision_grid[xx][yy] == "island") {
+				var edge = MAP.collision_grid[xx][yy] == "outside" ? true : false;
+				MAP.collision_grid[xx][yy] = "edge";
+				MAP.assets_grid[xx][yy] = create_rock(xx*cell +cell/2, yy*cell+cell/2, xx, yy, MAP.dungeon_rocks[irandom(array_length(MAP.dungeon_rocks)-1)], edge);
+			}
+			var fx = xx*cell;
+			var fy = yy*cell;
+			// Find which surface this point belongs to
+			var surface_x = floor(fx / MAP.background_surface_size);
+			var surface_y = floor(fy / MAP.background_surface_size);
+			var surf_index = find_bg_surf_index(fx, fy);
+			surface_set_target(MAP.background_fog_surfaces[surf_index]);
+			draw_sprite(fog_cell, 0, fx-surface_x*MAP.background_surface_size, fy-surface_y*MAP.background_surface_size);
+			surface_reset_target();
+        }
+    }
+	gpu_set_blendmode(bm_normal);
+	// pad new edges
+	pad_edges_area(start_x, start_y, end_x, end_y);
+}
 
 #endregion
 
@@ -561,10 +688,12 @@ function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	color = c_white;
 	alpha = 1;
 	update_function = undefined;
+	draw_function = undefined;
 	destroy_function = undefined;
 	destroyed = false;
 	
     static draw = function(_x = x, _y = y, _scale=scale) {
+		if (draw_function != undefined) draw_function(self);
         draw_sprite_ext(sprite_index, image_index, _x, _y, _scale*xscale, _scale*yscale, 0, color, alpha);
 		image_index += image_speed;
 		if (image_index > sprite_get_number(sprite_index)) image_index = 0;
@@ -899,10 +1028,13 @@ function pad_edges_area(x1, y1, x2, y2) {
 
 #endregion
 
-
 #region background asset surfaces
 
-function generate_background_surfaces() {
+function generate_background_surfaces(node_size) {
+	
+	var path_min = node_size/90;
+	var path_max = node_size/55;
+	
 	MAP.surfaces_per_row = MAP.size*TILE/MAP.background_surface_size;
 	var surface_count = power(MAP.surfaces_per_row, 2);
 	// generate new surfaces
@@ -924,7 +1056,7 @@ function generate_background_surfaces() {
 					var col = find_closest_node(j*cell, k*cell).path_color;
 					draw_sprite_ext(choose(dungeon_path__1_, dungeon_path__2_, dungeon_path__3_, dungeon_path__4_, dungeon_path__5_,
 					dungeon_path__6_, dungeon_path__7_, dungeon_path__8_, dungeon_path__9_, dungeon_path__10_, dungeon_path__11_), 0, j*cell-start_x*cell, k*cell-start_y*cell,
-					random_range(1.15, 2.5), random_range(1.15, 2.5), irandom(360), col, 1);
+					random_range(path_min, path_max), random_range(path_min, path_max), irandom(360), col, 1);
 				}
 			}
 		}
@@ -948,7 +1080,7 @@ function generate_background_surfaces() {
 function draw_background_surfaces() {
 	for (var i=0; i<array_length(MAP.background_surfaces); i++) {
 		if (!surface_exists(MAP.background_surfaces[i])) {
-			generate_background_surfaces();
+			generate_background_surfaces(MAP.node_size);
 			break;
 		}
 		var _x = (i % MAP.surfaces_per_row) * MAP.background_surface_size;
@@ -966,20 +1098,85 @@ function find_bg_surf_index(_x, _y) {
 
 #endregion
 
-
 #region more assets
 
-function place_main_assets() {
+function place_main_assets_cave(subtype) {
 	
+	switch (subtype) {
+		case "cavern":
+			
+			break;
+	}
 	// place pillars
 	for (var i=0; i<array_length(MAP.map_nodes); i++) {
 		if (MAP.map_nodes[i].is_last) {
-			instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar, {image_xscale : 1});
+			//instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar, {image_xscale : 1});
 		}
 	}
 	
-	instance_create_layer(MAP.map_nodes[1].x, MAP.map_nodes[1].y, "Instances", o_dungeon_campfire, {image_xscale : 1});
 	
+}
+
+function is_area_within_bounds(x1, y1, x2, y2) {
+	return (is_valid_grid_cell(x1, y1) && is_valid_grid_cell(x2, y2));
+}
+
+
+#endregion
+
+
+
+
+#region generate maps
+
+function generate_map(world) {
+	
+	init_grids();
+	randomize();
+	
+	switch (world) {
+		case "underworld":
+			var map_type = choose("cave"); // defense, catacomb, arena, dungeon
+			var map_subtype;
+			switch (map_type) {
+				case "cave":
+					map_subtype = choose("cavern"); // tunnel, river
+					generate_underworld_cave(map_subtype);
+					break;
+			}
+			break;
+	}
+
+	MAP.map_name = $"{world} {map_type} {map_subtype}";
+}
+
+function generate_underworld_cave(subtype) {
+	
+	switch (subtype) {
+		case "cavern":
+			// generate nodes
+			var r = irandom_range(MAP.size-MAP.size/3, MAP.size+MAP.size/3);
+			MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r*2);
+			
+			// Mark node areas as blocked
+			MAP.node_size = 125;
+			mark_node_collisions(MAP.node_size);
+			// flag stuff
+			flag_unwalkable_islands();
+			// create static assets
+			place_rocks_simple("dungeon");
+			place_connected_walls();
+			place_edge_walls();
+			pad_edges();
+		
+			generate_background_surfaces(MAP.node_size);
+			generate_fog_surfaces();
+		
+			place_main_assets_cave(subtype);
+		
+			layer_background_sprite(MAP.back_id, dungeon_ground1);
+			break;
+	}
 }
 
 

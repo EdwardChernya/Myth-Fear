@@ -96,3 +96,11 @@ outside edge of map is perma fog so it doesnt confuse you that its walkable
 
 
 game auto detects aspect ratio and sets controls to phone if is vertical and pc if horizontal
+
+
+
+opening chests is epic af, they totaly should give rewards aswell
+
+cool environment refs
+https://www.youtube.com/watch?v=p9dpRGk9O7U&t=48s
+also any cashgrab browser mmorpg has nice environments	https://www.google.com/search?q=league+of+angels+environments&sca_esv=d3099a39e25ef03c&rlz=1C1CHZL_bgBG765BG765&udm=2&biw=1920&bih=954&sxsrf=AE3TifP5gjbeeEN7OE_KTe-d6Pw2ebN7zw%3A1760297118900&ei=ngDsaNbbNpmpxc8PhtGWyA8&ved=0ahUKEwjWouLjsZ-QAxWZVPEDHYaoBfkQ4dUDCBE&uact=5&oq=league+of+angels+environments&gs_lp=Egtnd3Mtd2l6LWltZyIdbGVhZ3VlIG9mIGFuZ2VscyBlbnZpcm9ubWVudHNIzztQmQVYszpwFHgAkAEAmAGMAaAB2yOqAQUyOC4xOLgBA8gBAPgBAZgCKaAC0xioAgrCAgcQIxgnGMkCwgIFEAAYgATCAgoQABiABBhDGIoFwgIHEAAYgAQYCsICChAjGCcYyQIY6gLCAgQQABgewgIGEAAYCBgemAMGiAYBkgcFMjMuMTigB_exAbIHBTExLjE4uAeWGMIHBjAuNC4zN8gHngE&sclient=gws-wiz-img#vhid=75DmVFnbmDfJKM&vssid=mosaic

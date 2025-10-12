@@ -1,9 +1,12 @@
 /// @description Insert description here
 // You can write your code in this editor
 
+map_name = "none";
+
 size = 64;
 map_nodes = undefined;
-type = undefined;
+node_size = 100;
+world = undefined;
 
 fog_grid = undefined;
 
@@ -17,6 +20,7 @@ dynamic_assets = [];
 static_assets = [];
 assets_grid = undefined;
 
+back_id = undefined;
 background_surfaces = undefined;
 background_surface_size = 1024;
 surfaces_per_row = 0;
