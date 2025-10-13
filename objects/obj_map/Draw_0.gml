@@ -33,7 +33,7 @@ var dynamic_count = array_length(dynamic_assets);
 CAMERA.assets_drawn = static_count + dynamic_count;
 // Merge draw static and dynamic assets in correct depth order
 while (static_index < static_count && dynamic_index < dynamic_count) {
-    if (culled_array[static_index].y <= dynamic_assets[dynamic_index].y) {
+    if (culled_array[static_index].y <= dynamic_assets[dynamic_index].position.y) {
         // Static asset should draw first (lower Y = further back)
         culled_array[static_index].draw();
         static_index++;
@@ -65,7 +65,12 @@ if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 #region dev visuals
 if (!DEV) exit;
 
-// draw stuff
+// draw camera center
+//draw_line_width_color(CAMERA.x-8, CAMERA.y-8, CAMERA.x-8, CAMERA.y+7, 2, c_olive, c_olive);
+//draw_line_width_color(CAMERA.x+7, CAMERA.y-8, CAMERA.x+7, CAMERA.y+7, 2, c_olive, c_olive);
+
+// draw collision grid
+if (draw_collision) {
 for (var i=0; i<array_length(collision_grid); i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
@@ -75,8 +80,10 @@ for (var i=0; i<array_length(collision_grid); i++) {
 	}
 	draw_set_alpha(1);
 }
+}
 
 // draw assets grid
+if (draw_asset) {
 for (var i=0; i<array_length(assets_grid); i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
@@ -89,7 +96,7 @@ for (var i=0; i<array_length(assets_grid); i++) {
 	}
 	draw_set_alpha(1);
 }
-
+}
 
 
 draw_set_color(c_lime);
@@ -102,8 +109,40 @@ for (var i = 0; i < array_length(map_nodes); i++) {
         var other_node = map_nodes[node.connections[j]];
 		var c1 = node.is_last ? c_fuchsia : c_lime;
 		var c2 = other_node.is_last ? c_fuchsia : c_lime;
+		c1 = node.flag > 0 ? c_red : c1;
+		c2 = other_node.flag > 0 ? c_red : c2;
         draw_line_color(node.x, node.y, other_node.x, other_node.y, c1, c2);
     }
 }
-    
+
+// draw areas
+for (var i = 0; i < array_length(big_areas); i++) {
+    var area = big_areas[i];
+	var radius = area.radius*MAP.collision_grid_cell_size;
+	var c = c_red;
+    draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c);
+	draw_set_color(c_red);
+	draw_set_halign(fa_left);
+	draw_set_valign(fa_bottom);
+	draw_text(area.center_x-radius, area.center_y-radius, $"{area.radius}");
+}
+for (var i = 0; i < array_length(remote_areas); i++) {
+    var area = remote_areas[i];
+	var radius = area.radius*MAP.collision_grid_cell_size;
+    draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_aqua);
+}
+for (var i = 0; i < array_length(remote_areas_pass2); i++) {
+	var area = remote_areas_pass2[i];
+	var radius = area.radius*MAP.collision_grid_cell_size;
+    draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_yellow);
+}
+for (var i = 0; i < array_length(left_over_areas); i++) {
+	var area = left_over_areas[i];
+	var radius = area.radius*MAP.collision_grid_cell_size;
+    draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_dkgray);
+}
+
+
+
+draw_rectangle_color(mouse_x, mouse_y, mouse_x, mouse_y, c_lime, c_lime, c_lime, c_lime, false);
 #endregion

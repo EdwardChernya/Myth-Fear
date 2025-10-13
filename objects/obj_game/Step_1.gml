@@ -28,5 +28,13 @@ if (DEV and room == Room1) {
 	if (keyboard_check_pressed(ord("R"))) room_goto(rm_main_menu);
 }
 
-if (keyboard_check_pressed(ord("D"))) DEV = !DEV;
-if (point_in_rectangle(MOUSE.x, MOUSE.y, 64, 0, 172, 64) and _touch_down()) DEV = !DEV;
+if (keyboard_check_pressed(ord("D"))) {
+	DEV = !DEV;
+	if (DEV) CAMERA.target = MOUSE;
+	if (!DEV) CAMERA.target = PLAYER;
+}
+if (point_in_rectangle(MOUSE.x, MOUSE.y, 64, 0, 172, 64) and _touch_down()) {
+	DEV = !DEV;
+	if (DEV) CAMERA.target = MOUSE;
+	if (!DEV) CAMERA.target = PLAYER;
+}

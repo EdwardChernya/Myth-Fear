@@ -34,7 +34,7 @@ function init_grids() {
 
 function mark_node_collisions(node_size) { // roads and collisions
 	
-	var path_size = max(65, node_size/1.67);
+	var path_size = max(65, node_size/1.25);
 	
     // Mark areas around nodes as blocked
     for (var i = 0; i < array_length(MAP.map_nodes); i++) {
@@ -459,7 +459,19 @@ function destroy_square_area_grid(x1, y1, x2, y2) {
 
 #region map 
 
-function create_spiral_map(map_size, trunk_nodes = 8, max_branches = 5) {
+function map_node(_x, _y, _is_trunk) constructor {
+	x = _x;
+	y = _y;
+	is_trunk = _is_trunk;
+	is_last = false;
+	is_end = false;
+	connections = [];
+	seed = irandom(9999);
+	path_color = 0;
+	flag = 0;
+}
+
+function create_spiral_map(map_size, trunk_nodes = 8, branch_length = 5) {
     var nodes = [];
     
     // Start from a random point
@@ -470,7 +482,7 @@ function create_spiral_map(map_size, trunk_nodes = 8, max_branches = 5) {
     var spiral_tightness = 1 + random_range(-.1, .1);
     var spiral_expansion = 64;
     var base_angle = random(360);
-    var angle_increment = spiral_expansion;
+    var angle_increment = choose(-1, 1)*spiral_expansion;
     
     // Create main trunk as a spiral
     var current_x = start_x;
@@ -516,7 +528,7 @@ function create_spiral_map(map_size, trunk_nodes = 8, max_branches = 5) {
         
         array_push(nodes, node);
 		node.path_color = calculate_path_color(node, nodes);
-        
+        //if ((i mod 5) == 0) node.flag = irandom(9)+1;
         // Connect to previous trunk node (if not first node)
         if (i > 0) {
             array_push(nodes[i-1].connections, i);
@@ -527,11 +539,12 @@ function create_spiral_map(map_size, trunk_nodes = 8, max_branches = 5) {
         current_y = node_y;
     }
 	nodes[array_length(nodes)-1].is_end = true;
+	MAP.last_node = nodes[array_length(nodes)-1];
     
     // Add spiral branches that follow similar patterns
     for (var i = 1; i < trunk_nodes - 1; i++) {
         if (random(1) < 0.5) { // 50% chance to branch
-            add_spiral_branch(nodes, i, map_size, 2 + irandom(3));
+            add_spiral_branch(nodes, i, map_size, irandom(branch_length));
         }
     }
     
@@ -645,17 +658,6 @@ function noise(seed) {
     return (sin(seed * 12.9898) * 43758.5453) % 1;
 }
 
-function map_node(_x, _y, _is_trunk) constructor {
-	x = _x;
-	y = _y;
-	is_trunk = _is_trunk;
-	is_last = false;
-	is_end = false;
-	connections = [];
-	seed = irandom(9999);
-	path_color = 0;
-}
-
 function find_closest_node(_x, _y) {
 	var dist = MAP.size*TILE*2;
 	var node = undefined;
@@ -668,14 +670,39 @@ function find_closest_node(_x, _y) {
 	}
 	return node;
 }
+function get_nodes_by_distance(_x, _y) {
+    var new_array = array_slice(MAP.map_nodes, 0, array_length(MAP.map_nodes));
+    
+    // Simple bubble sort
+    for (var i = 0; i < array_length(new_array) - 1; i++) {
+        for (var j = 0; j < array_length(new_array) - 1 - i; j++) {
+            var dist_a = point_distance(new_array[j].x, new_array[j].y, _x, _y);
+            var dist_b = point_distance(new_array[j+1].x, new_array[j+1].y, _x, _y);
+            
+            if (dist_a > dist_b) {
+                var temp = new_array[j];
+                new_array[j] = new_array[j+1];
+                new_array[j+1] = temp;
+            }
+        }
+    }
+    
+    return new_array;
+}
+
+
 
 #endregion
 
 #region assets
 
+function place_asset(_x, _y, asset, _vars={}) {
+	instance_create_layer(_x, _y, "Instances", asset, _vars);
+}
+
 function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
-	x = _x;
-	y = _y;
+	x = floor(_x);
+	y = floor(_y);
 	grid_x = _grid_x;
 	grid_y = _grid_y;
     type = _type;
@@ -751,7 +778,7 @@ function place_rocks_simple(_type) {
 	
     // Define rock sizes and how many can fit in one cell
 	switch (_type) {
-		case "dungeon":
+		case "underworld":
 		    var rock_types = MAP.dungeon_rocks;
 			break;
 	}
@@ -1100,10 +1127,183 @@ function find_bg_surf_index(_x, _y) {
 
 #region more assets
 
-function place_main_assets_cave(subtype) {
+function find_map_areas() {
+	find_map_big_areas();
+	find_map_remote_areas();
+}
+
+function find_map_big_areas() {
+    var grid = MAP.collision_grid;
+    var width = array_length(grid);
+    var height = array_length(grid[0]);
+    var cell_size = MAP.collision_grid_cell_size;
+    
+    var biggest_circles = [];
+    var min_radius = 3; // Only consider circles with at least this radius
+    
+    // Sample grid points (skip every 2nd cell for speed)
+    for (var xx = 2; xx < width - 2; xx += 2) {
+        for (var yy = 2; yy < height - 2; yy += 2) {
+            if (grid[xx][yy] == "free") {
+                var max_radius = find_max_radius_at_simple(xx, yy, grid);
+                
+                if (max_radius >= min_radius) {
+                    array_push(biggest_circles, {
+                        x: xx,
+                        y: yy, 
+                        radius: max_radius,
+                        center_x: xx * cell_size + cell_size / 2,
+                        center_y: yy * cell_size + cell_size / 2,
+						free : true,
+						distance : point_distance(xx * cell_size + cell_size / 2, yy * cell_size + cell_size / 2, MAP.last_node.x, MAP.last_node.y)
+                    });
+                }
+            }
+        }
+    }
+    
+    // Sort by radius (biggest first) and take top 10
+    array_sort(biggest_circles, function(a, b) {
+        return b.radius - a.radius;
+    });
+	// removed overlaps
+	var non_overlap = remove_overlapping_circles(biggest_circles);
+	DEBUG.add($"{array_length(non_overlap)} areas", c_lime);
+	var big = min(4, array_length(non_overlap));
+    MAP.big_areas = array_slice(non_overlap, 0, big);
+    MAP.remote_areas = array_slice(non_overlap, big, array_length(non_overlap));
+}
+
+// Remove overlaps - simple and fast
+function remove_overlapping_circles(biggest_circles) {
+    var cell_size = MAP.collision_grid_cell_size;
+    var non_overlapping = [];
+    
+    for (var i = 0; i < array_length(biggest_circles); i++) {
+        var circle = biggest_circles[i];
+        var overlaps = false;
+        
+        // Check against all already-added circles
+        for (var j = 0; j < array_length(non_overlapping); j++) {
+            var existing = non_overlapping[j];
+            var distance = point_distance(circle.center_x, circle.center_y, existing.center_x, existing.center_y);
+            var min_distance = (circle.radius + existing.radius) * cell_size;
+            
+            if (distance < min_distance) {
+                overlaps = true;
+                break;
+            }
+        }
+        
+        if (!overlaps) {
+            array_push(non_overlapping, circle);
+        }
+    }
+    
+    return non_overlapping;
+}
+
+function find_max_radius_at_simple(center_x, center_y, grid) {
+    var width = array_length(grid);
+    var height = array_length(grid[0]);
+    var max_possible = min(center_x, center_y, width - center_x - 1, height - center_y - 1);
+    var radius = 0;
+    
+    // Expand radius until we hit a wall
+    while (radius < max_possible) {
+        radius++;
+        
+        // Check the circumference at this radius
+        for (var angle = 0; angle < 360; angle += 15) { // Check in directions
+            var check_x = center_x + round(lengthdir_x(radius, angle));
+            var check_y = center_y + round(lengthdir_y(radius, angle));
+            
+            if (check_x < 0 || check_x >= width || check_y < 0 || check_y >= height || 
+                grid[check_x][check_y] != "free") {
+                return radius - 1; // Return previous valid radius
+            }
+        }
+    }
+    
+    return radius;
+}
+
+function is_area_within_bounds(x1, y1, x2, y2) {
+	return (is_valid_grid_cell(x1, y1) && is_valid_grid_cell(x2, y2));
+}
+
+function find_map_remote_areas() {
+	// delete any areas too close to last node
+	for (var i = 0; i < array_length(MAP.remote_areas); i++) {
+		var area = MAP.remote_areas[i];
+		if (point_distance(area.center_x, area.center_y, MAP.last_node.x, MAP.last_node.y) < 200) {
+			array_delete(MAP.remote_areas, i, 1);
+			i--;
+		}
+	}
+	var _f = function(a, b) {
+		return (point_distance(b.center_x, b.center_y, MAP.last_node.x, MAP.last_node.y) - point_distance(a.center_x, a.center_y, MAP.last_node.x, MAP.last_node.y));
+	}
+	array_sort(MAP.remote_areas, _f);
+	// erase areas too close to each other
+	var new_array = [];
+	for (var i = 0; i < array_length(MAP.remote_areas); i++) {
+		var area = MAP.remote_areas[i];
+		var j=i+1;
+		while (j<array_length(MAP.remote_areas)) {
+			var next_area = MAP.remote_areas[j];
+			if (point_distance(area.center_x, area.center_y, next_area.center_x, next_area.center_y) < 800) {
+				array_push(new_array, MAP.remote_areas[j]);
+				array_delete(MAP.remote_areas, j, 1);
+			} else {
+				j++;
+			}
+		}
+	}
+	if (array_length(MAP.remote_areas) > 5) array_delete(MAP.remote_areas, 5, array_length(MAP.remote_areas)-5);
+	
+	// pass 2
+	MAP.remote_areas_pass2 = [];
+	var left_over_areas = [];
+	for (var i = 0; i < array_length(new_array); i++) {
+		var area = new_array[i];
+		var nodes = get_nodes_by_distance(area.center_x, area.center_y);
+		if (nodes[0].is_last || nodes[1].is_last) {
+			array_push(MAP.remote_areas_pass2, area);
+			continue;
+		}
+		if (nodes[0] == MAP.map_nodes[0] || nodes[1] == MAP.map_nodes[0]) {
+			array_push(MAP.remote_areas_pass2, area);
+			continue;
+		}
+		array_push(left_over_areas, area);
+	}
+	
+	MAP.left_over_areas = left_over_areas;
+	
+}
+
+
+function generate_battle_areas_cavern() {
+	var cell = MAP.collision_grid_cell_size;
+	
+	// biggest area first
+	var area = variable_clone(MAP.big_areas[0]);
+	var radius = area.radius *cell;
+	area.center_y += area.radius/8;
+	var ax = area.center_x, ay = area.center_y;
+	place_asset(ax+lengthdir_x(radius/1.5, 45)+50,  ay+lengthdir_y(radius/1.5, 45),  o_dungeon_arc, {broken : true});
+	place_asset(ax+lengthdir_x(radius/1.5, 135)-50, ay+lengthdir_y(radius/1.5, 135), o_dungeon_arc, {broken : true, image_xscale : -1});
+	place_asset(ax+lengthdir_x(radius/1.5, 225), ay+lengthdir_y(radius/1.5, 225)+radius/8, o_dungeon_arc, {broken : true});
+	place_asset(ax+lengthdir_x(radius/1.5, 315), ay+lengthdir_y(radius/1.5, 315)+radius/8, o_dungeon_arc, {broken : true, image_xscale : -1});
+}
+
+function place_main_assets_dungeon(subtype) {
 	
 	switch (subtype) {
 		case "cavern":
+			// what we have for now is tent+barrels/campfire and pillars and crates
+			generate_battle_areas_cavern();
 			
 			break;
 	}
@@ -1117,9 +1317,6 @@ function place_main_assets_cave(subtype) {
 	
 }
 
-function is_area_within_bounds(x1, y1, x2, y2) {
-	return (is_valid_grid_cell(x1, y1) && is_valid_grid_cell(x2, y2));
-}
 
 
 #endregion
@@ -1136,12 +1333,12 @@ function generate_map(world) {
 	
 	switch (world) {
 		case "underworld":
-			var map_type = choose("cave"); // defense, catacomb, arena, dungeon
+			var map_type = choose("dungeon"); // defense, arena
 			var map_subtype;
 			switch (map_type) {
-				case "cave":
-					map_subtype = choose("cavern"); // tunnel, river
-					generate_underworld_cave(map_subtype);
+				case "dungeon":
+					map_subtype = choose("cavern"); // tunnel, river, catacomb
+					generate_underworld_dungeon(map_subtype);
 					break;
 			}
 			break;
@@ -1150,13 +1347,14 @@ function generate_map(world) {
 	MAP.map_name = $"{world} {map_type} {map_subtype}";
 }
 
-function generate_underworld_cave(subtype) {
+function generate_underworld_dungeon(subtype) {
 	
 	switch (subtype) {
 		case "cavern":
 			// generate nodes
 			var r = irandom_range(MAP.size-MAP.size/3, MAP.size+MAP.size/3);
-			MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r*2);
+			MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r/3);
+			DEBUG.add($"main {r} | total {array_length(MAP.map_nodes)}", c_lime);
 			
 			// Mark node areas as blocked
 			MAP.node_size = 125;
@@ -1164,19 +1362,21 @@ function generate_underworld_cave(subtype) {
 			// flag stuff
 			flag_unwalkable_islands();
 			// create static assets
-			place_rocks_simple("dungeon");
+			place_rocks_simple("underworld");
 			place_connected_walls();
 			place_edge_walls();
 			pad_edges();
 		
 			generate_background_surfaces(MAP.node_size);
 			generate_fog_surfaces();
-		
-			place_main_assets_cave(subtype);
+			
+			find_map_areas();
+			place_main_assets_dungeon(subtype);
 		
 			layer_background_sprite(MAP.back_id, dungeon_ground1);
 			break;
 	}
+	
 }
 
 

@@ -5,8 +5,14 @@ map_name = "none";
 
 size = 64;
 map_nodes = undefined;
+last_node = undefined;
 node_size = 100;
 world = undefined;
+
+big_areas = undefined;
+remote_areas = undefined;
+remote_areas_pass2 = undefined;
+left_over_areas = undefined;
 
 fog_grid = undefined;
 
@@ -36,6 +42,9 @@ fog_sprite_index = 0;
 background_fog_surfaces = undefined;
 permafog_surfaces = undefined;
 fog_surfaces = undefined;
+
+draw_collision = false;
+draw_asset = false;
 
 #region assets
 dungeon_rocks =  [

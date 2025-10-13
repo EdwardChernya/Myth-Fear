@@ -3,7 +3,7 @@ function stat_struct() constructor {
 	
 	// base stuff
 	vision = 200;
-	speed = 5;
+	speed = 4;
 	
 	hp = 5;
 	armor = .15;
@@ -40,13 +40,16 @@ function animations_struct() constructor {
 	idle = undefined;
 	run = undefined;
 	aattack = undefined;
+	ablock = undefined;
+	cast = undefined;
+	stun = undefined;
+	flail = undefined;
 }
 
 function hero() constructor {
 	
 	// init
-	x = 0;
-	y = 0;
+	position = new Vector2();
 	visible = true;
 	stats = new stat_struct();
 	state = "idle";
@@ -62,8 +65,7 @@ function hero() constructor {
 	cctimer = 0;
 	
 	static update = function() {
-		x = PLAYER.position.x;
-		y = PLAYER.position.y;
+		position.Set(PLAYER.position);
 		
 		stats.update();
 		// state stuff
@@ -87,11 +89,10 @@ function hero() constructor {
 
 function basic_hero() : hero() constructor {
 	
-	stats.speed = 5;
 	animations.idle = _727_13_new;
 	
 	static draw = function() {
-		draw_sprite_ext(sprite_index, image_index, x, y, image_xscale, image_yscale, 0, c_white, image_alpha);
+		draw_sprite_ext(sprite_index, image_index, floor(position.x), floor(position.y), image_xscale, image_yscale, 0, c_white, image_alpha);
 	}
 	
 }

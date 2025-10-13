@@ -11,7 +11,6 @@ back_id = layer_background_get_id(layer_id);
 
 // generate map
 generate_map(world);
-DEBUG.add($"main {r} | total {array_length(MAP.map_nodes)}", c_lime);
 
 // sort static assets for quick depth
 var number_of_assets = 0;
@@ -26,10 +25,11 @@ DEBUG.add($"{number_of_assets} total static assets", c_lime);
 
 
 // setup camera and player
-PLAYER.position.Set(MAP.map_nodes[0]);
+PLAYER.position.Set(MAP.last_node);
 PLAYER.revealing_fog = 60;
 
 if (!DEV) {
+	CAMERA.target = PLAYER;
 	CAMERA.x = PLAYER.position.x;
 	CAMERA.y = PLAYER.position.y;
 	var wide_res = max(CAMERA.width, CAMERA.height);

@@ -105,8 +105,26 @@ function to_screen(_x, _y) {
 	var sy = (_y-CAMERA.y)*CAMERA.zoom+CAMERA.height/2;
 	return new Vector2(sx, sy);
 }
+function to_world(_x, _y) {
+	var wx = (_x-CAMERA.width/2)/CAMERA.zoom + CAMERA.x;
+	var wy = (_y-CAMERA.height/2)/CAMERA.zoom + CAMERA.y;
+	return new Vector2(wx, wy);
+}
 
-//stuff 
+//stuff
+function draw_rectangle_width_color(x1, y1, x2, y2, width, color) {
+	var offset = floor(width/2);
+	draw_line_width_color(x1, y1+offset, x2, y1+offset, width, color, color);
+	draw_line_width_color(x2-offset, y1, x2-offset, y2, width, color, color);
+	draw_line_width_color(x2, y2-offset, x1, y2-offset, width, color, color);
+	draw_line_width_color(x1+offset, y2, x1+offset, y1, width, color, color);
+}
+
+function array_slice(source, source_index, length) {
+	var sliced_array = [];
+	array_copy(sliced_array, 0, source, source_index, length);
+	return sliced_array;
+}
 
 function floating_text_manager() constructor {
 	

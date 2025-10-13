@@ -225,7 +225,7 @@ function draw_fog() {
 		for (var j=0;j<array_length(MAP.dynamic_assets);j++) {
 			var asset = MAP.dynamic_assets[j];
 			if (asset.visible) {
-				draw_sprite_ext(asset.sprite_index, asset.image_index, asset.x-_x, asset.y-_y, asset.image_xscale, asset.image_yscale, 0, c_white, 1);
+				draw_sprite_ext(asset.sprite_index, asset.image_index, asset.position.x-_x, asset.position.y-_y, asset.image_xscale, asset.image_yscale, 0, c_white, 1);
 			}
 		}
 		surface_reset_target();

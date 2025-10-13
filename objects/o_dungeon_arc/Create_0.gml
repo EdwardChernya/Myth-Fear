@@ -3,6 +3,7 @@
 
 event_inherited();
 
+
 if (image_xscale > 0) {
 	if (!is_area_within_bounds(grid_x-6, grid_y-4, grid_x+2, grid_y+1)) {
 		instance_destroy();
@@ -28,15 +29,27 @@ var asset = new static_asset(_x, _y, grid_x, grid_y, "arc");
 asset.sprite_index = sprite_index;
 asset.xscale = image_xscale;
 
-insert_static_asset(asset);
-MAP.collision_grid[grid_x][grid_y]     = "blocked";
-MAP.collision_grid[grid_x-1][grid_y-1] = "blocked";
-MAP.collision_grid[grid_x][grid_y-1]   = "blocked";
-MAP.collision_grid[grid_x+1][grid_y-1] = "blocked";
-MAP.assets_grid[grid_x][grid_y]     = asset;
-MAP.assets_grid[grid_x-1][grid_y-1] = asset;
-MAP.assets_grid[grid_x][grid_y-1]   = asset;
-MAP.assets_grid[grid_x+1][grid_y-1] = asset;
+if (broken && irandom(9) > 1) {
+	insert_static_asset(asset);
+	MAP.collision_grid[grid_x][grid_y]     = "blocked";
+	MAP.collision_grid[grid_x-1][grid_y-1] = "blocked";
+	MAP.collision_grid[grid_x][grid_y-1]   = "blocked";
+	MAP.collision_grid[grid_x+1][grid_y-1] = "blocked";
+	MAP.assets_grid[grid_x][grid_y]     = asset;
+	MAP.assets_grid[grid_x-1][grid_y-1] = asset;
+	MAP.assets_grid[grid_x][grid_y-1]   = asset;
+	MAP.assets_grid[grid_x+1][grid_y-1] = asset;
+} else if (!broken) {
+	insert_static_asset(asset);
+	MAP.collision_grid[grid_x][grid_y]     = "blocked";
+	MAP.collision_grid[grid_x-1][grid_y-1] = "blocked";
+	MAP.collision_grid[grid_x][grid_y-1]   = "blocked";
+	MAP.collision_grid[grid_x+1][grid_y-1] = "blocked";
+	MAP.assets_grid[grid_x][grid_y]     = asset;
+	MAP.assets_grid[grid_x-1][grid_y-1] = asset;
+	MAP.assets_grid[grid_x][grid_y-1]   = asset;
+	MAP.assets_grid[grid_x+1][grid_y-1] = asset;
+}
 
 var destroy_func = function(_self) {
 	with (_self) {
@@ -69,13 +82,23 @@ var asset = new static_asset(_x, _y, grid_x, grid_y, "arc");
 asset.sprite_index = dungeon_arc2;
 asset.xscale = image_xscale;
 
-insert_static_asset(asset);
-MAP.collision_grid[grid_x][grid_y]     = "blocked";
-MAP.collision_grid[grid_x-1][grid_y] = "blocked";
-MAP.collision_grid[grid_x+1][grid_y] = "blocked";
-MAP.assets_grid[grid_x][grid_y]     = asset;
-MAP.assets_grid[grid_x-1][grid_y] = asset;
-MAP.assets_grid[grid_x+1][grid_y] = asset;
+if (broken && irandom(9) > 2) {
+	insert_static_asset(asset);
+	MAP.collision_grid[grid_x][grid_y]     = "blocked";
+	MAP.collision_grid[grid_x-1][grid_y] = "blocked";
+	MAP.collision_grid[grid_x+1][grid_y] = "blocked";
+	MAP.assets_grid[grid_x][grid_y]     = asset;
+	MAP.assets_grid[grid_x-1][grid_y] = asset;
+	MAP.assets_grid[grid_x+1][grid_y] = asset;
+} else if (!broken) {
+	insert_static_asset(asset);
+	MAP.collision_grid[grid_x][grid_y]     = "blocked";
+	MAP.collision_grid[grid_x-1][grid_y] = "blocked";
+	MAP.collision_grid[grid_x+1][grid_y] = "blocked";
+	MAP.assets_grid[grid_x][grid_y]     = asset;
+	MAP.assets_grid[grid_x-1][grid_y] = asset;
+	MAP.assets_grid[grid_x+1][grid_y] = asset;
+}
 
 var destroy_func = function(_self) {
 	with (_self) {
