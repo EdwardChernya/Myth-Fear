@@ -38,6 +38,6 @@ reveal_fog(position.x, position.y, character_main.stats.vision, .67);
 if (press_in_rectangle(left_area)) destroy_circle_area(position.x, position.y, 100);
 
 
-if (keyboard_check_pressed(ord("A"))) instance_create_layer(mouse_x, mouse_y, "Instances", o_dungeon_tent, {image_xscale : 1});
+if (keyboard_check_pressed(ord("A"))) instance_create_layer(mouse_x, mouse_y, "Instances", o_dungeon_crate, {image_xscale : 1});
 
 //if (keyboard_check_pressed(ord("Q"))) destroy_square_area_grid(to_grid(mouse_x), to_grid(mouse_y), to_grid(mouse_x), to_grid(mouse_y));

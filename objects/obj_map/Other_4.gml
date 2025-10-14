@@ -25,6 +25,7 @@ DEBUG.add($"{number_of_assets} total static assets", c_lime);
 
 
 // setup camera and player
+destroy_square_area_grid(to_grid(MAP.last_node.x), to_grid(MAP.last_node.y), to_grid(MAP.last_node.x), to_grid(MAP.last_node.y));
 PLAYER.position.Set(MAP.last_node);
 PLAYER.revealing_fog = 60;
 

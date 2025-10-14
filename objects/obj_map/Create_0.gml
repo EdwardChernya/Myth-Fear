@@ -45,6 +45,8 @@ fog_surfaces = undefined;
 
 draw_collision = false;
 draw_asset = false;
+draw_nodes = false;
+draw_areas = true;
 
 #region assets
 dungeon_rocks =  [

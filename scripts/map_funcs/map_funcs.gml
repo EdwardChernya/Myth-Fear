@@ -703,6 +703,7 @@ function place_asset(_x, _y, asset, _vars={}) {
 function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	x = floor(_x);
 	y = floor(_y);
+	position = new Vector2(x, y);
 	grid_x = _grid_x;
 	grid_y = _grid_y;
     type = _type;
@@ -719,7 +720,7 @@ function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	destroy_function = undefined;
 	destroyed = false;
 	
-    static draw = function(_x = x, _y = y, _scale=scale) {
+    static draw = function(_x = position.x, _y = position.y, _scale=scale) {
 		if (draw_function != undefined) draw_function(self);
         draw_sprite_ext(sprite_index, image_index, _x, _y, _scale*xscale, _scale*yscale, 0, color, alpha);
 		image_index += image_speed;
@@ -1292,10 +1293,45 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
-	place_asset(ax+lengthdir_x(radius/1.5, 45)+50,  ay+lengthdir_y(radius/1.5, 45),  o_dungeon_arc, {broken : true});
-	place_asset(ax+lengthdir_x(radius/1.5, 135)-50, ay+lengthdir_y(radius/1.5, 135), o_dungeon_arc, {broken : true, image_xscale : -1});
-	place_asset(ax+lengthdir_x(radius/1.5, 225), ay+lengthdir_y(radius/1.5, 225)+radius/8, o_dungeon_arc, {broken : true});
-	place_asset(ax+lengthdir_x(radius/1.5, 315), ay+lengthdir_y(radius/1.5, 315)+radius/8, o_dungeon_arc, {broken : true, image_xscale : -1});
+	place_asset(ax+lengthdir_x(radius/1.5, 45)+50,  ay+lengthdir_y(radius/1.5, 45),  o_dungeon_arc, {broken : 3});
+	place_asset(ax+lengthdir_x(radius/1.5, 135)-50, ay+lengthdir_y(radius/1.5, 135), o_dungeon_arc, {broken : 3, image_xscale : -1});
+	place_asset(ax+lengthdir_x(radius/1.5, 225), ay+lengthdir_y(radius/1.5, 225)+radius/8, o_dungeon_arc, {broken : 3});
+	place_asset(ax+lengthdir_x(radius/1.5, 315), ay+lengthdir_y(radius/1.5, 315)+radius/8, o_dungeon_arc, {broken : 3, image_xscale : -1});
+	if (area.radius > 16) {
+		place_asset(ax+lengthdir_x(radius/.9, 0),  ay+lengthdir_y(radius/.9, 0),  o_dungeon_arc, {broken : 1});
+		place_asset(ax+lengthdir_x(radius/1.375, 180),  ay+lengthdir_y(radius/1.375, 180),  o_dungeon_arc, {broken : 1});
+		place_asset(ax+lengthdir_x(radius/1.55, 90) + 64,  ay+lengthdir_y(radius/1.55, 90),  o_dungeon_arc, {broken : 1});
+		place_asset(ax+lengthdir_x(radius/1.2, 270) + 64,  ay+lengthdir_y(radius/1.2, 270),  o_dungeon_arc, {broken : 1});
+	}
+	
+	if (array_length(MAP.big_areas) > 1) {
+	var area = variable_clone(MAP.big_areas[1]);
+	var radius = area.radius *cell;
+	area.center_y += area.radius/8;
+	var ax = area.center_x, ay = area.center_y;
+	var len = radius/random_range(2, 5), dir = irandom_range(15, 165);
+	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_pillar);
+	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(48, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(48, dir+180), o_dungeon_crate);
+	}
+	
+	if (array_length(MAP.big_areas) > 2) {
+	var area = variable_clone(MAP.big_areas[2]);
+	var radius = area.radius *cell;
+	area.center_y += area.radius/8;
+	var ax = area.center_x, ay = area.center_y;
+	var len = radius/random_range(2, 5), dir = irandom(360);
+	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_crate);
+	}
+	
+	if (array_length(MAP.big_areas) > 3) {
+	var area = variable_clone(MAP.big_areas[3]);
+	var radius = area.radius *cell;
+	area.center_y += area.radius/8;
+	var ax = area.center_x, ay = area.center_y;
+	var len = radius/random_range(2, 5), dir = irandom(360);
+	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_crate);
+	}
+	
 }
 
 function place_main_assets_dungeon(subtype) {

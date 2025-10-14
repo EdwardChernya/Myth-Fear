@@ -114,6 +114,10 @@ function to_world(_x, _y) {
 //stuff
 function draw_rectangle_width_color(x1, y1, x2, y2, width, color) {
 	var offset = floor(width/2);
+	x1 = floor(x1);
+	y1 = floor(y1);
+	x2 = floor(x2);
+	y2 = floor(y2);
 	draw_line_width_color(x1, y1+offset, x2, y1+offset, width, color, color);
 	draw_line_width_color(x2-offset, y1, x2-offset, y2, width, color, color);
 	draw_line_width_color(x2, y2-offset, x1, y2-offset, width, color, color);
@@ -164,7 +168,7 @@ function floating_text_manager() constructor {
 }
 
 function sort_by_y(array) {
-	if (array_length(array) > 0) array_sort(array, function(a, b) { return a.y - b.y; });
+	if (array_length(array) > 0) array_sort(array, function(a, b) { return a.position.y - b.position.y; });
 }
 
 function point_in_ellipse(px, py, center_x, center_y, radius, height_ratio) {

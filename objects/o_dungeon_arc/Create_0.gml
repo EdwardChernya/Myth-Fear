@@ -29,7 +29,7 @@ var asset = new static_asset(_x, _y, grid_x, grid_y, "arc");
 asset.sprite_index = sprite_index;
 asset.xscale = image_xscale;
 
-if (broken && irandom(9) > 1) {
+if (broken == 3 && irandom(9) > 1) {
 	insert_static_asset(asset);
 	MAP.collision_grid[grid_x][grid_y]     = "blocked";
 	MAP.collision_grid[grid_x-1][grid_y-1] = "blocked";
@@ -39,7 +39,7 @@ if (broken && irandom(9) > 1) {
 	MAP.assets_grid[grid_x-1][grid_y-1] = asset;
 	MAP.assets_grid[grid_x][grid_y-1]   = asset;
 	MAP.assets_grid[grid_x+1][grid_y-1] = asset;
-} else if (!broken) {
+} else if (broken==0 || broken==2) {
 	insert_static_asset(asset);
 	MAP.collision_grid[grid_x][grid_y]     = "blocked";
 	MAP.collision_grid[grid_x-1][grid_y-1] = "blocked";
@@ -82,7 +82,7 @@ var asset = new static_asset(_x, _y, grid_x, grid_y, "arc");
 asset.sprite_index = dungeon_arc2;
 asset.xscale = image_xscale;
 
-if (broken && irandom(9) > 2) {
+if (broken==3 && irandom(9) > 2) {
 	insert_static_asset(asset);
 	MAP.collision_grid[grid_x][grid_y]     = "blocked";
 	MAP.collision_grid[grid_x-1][grid_y] = "blocked";
@@ -90,7 +90,7 @@ if (broken && irandom(9) > 2) {
 	MAP.assets_grid[grid_x][grid_y]     = asset;
 	MAP.assets_grid[grid_x-1][grid_y] = asset;
 	MAP.assets_grid[grid_x+1][grid_y] = asset;
-} else if (!broken) {
+} else if (broken==0 || broken==1) {
 	insert_static_asset(asset);
 	MAP.collision_grid[grid_x][grid_y]     = "blocked";
 	MAP.collision_grid[grid_x-1][grid_y] = "blocked";

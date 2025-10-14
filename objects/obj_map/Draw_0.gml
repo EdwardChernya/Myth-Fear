@@ -101,6 +101,7 @@ for (var i=0; i<array_length(assets_grid); i++) {
 
 draw_set_color(c_lime);
 
+if (draw_nodes) {
 // Draw connections
 for (var i = 0; i < array_length(map_nodes); i++) {
     var node = map_nodes[i];
@@ -114,7 +115,9 @@ for (var i = 0; i < array_length(map_nodes); i++) {
         draw_line_color(node.x, node.y, other_node.x, other_node.y, c1, c2);
     }
 }
+}
 
+if (draw_areas) {
 // draw areas
 for (var i = 0; i < array_length(big_areas); i++) {
     var area = big_areas[i];
@@ -130,18 +133,24 @@ for (var i = 0; i < array_length(remote_areas); i++) {
     var area = remote_areas[i];
 	var radius = area.radius*MAP.collision_grid_cell_size;
     draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_aqua);
+	draw_set_color(c_aqua);
+	draw_text(area.center_x-radius, area.center_y-radius, $"{area.radius}");
 }
 for (var i = 0; i < array_length(remote_areas_pass2); i++) {
 	var area = remote_areas_pass2[i];
 	var radius = area.radius*MAP.collision_grid_cell_size;
     draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_yellow);
+	draw_set_color(c_yellow);
+	draw_text(area.center_x-radius, area.center_y-radius, $"{area.radius}");
 }
 for (var i = 0; i < array_length(left_over_areas); i++) {
 	var area = left_over_areas[i];
 	var radius = area.radius*MAP.collision_grid_cell_size;
     draw_rectangle_width_color(area.center_x-radius, area.center_y-radius, area.center_x+radius, area.center_y+radius, 2, c_dkgray);
+	draw_set_color(c_dkgray);
+	draw_text(area.center_x-radius, area.center_y-radius, $"{area.radius}");
 }
-
+}
 
 
 draw_rectangle_color(mouse_x, mouse_y, mouse_x, mouse_y, c_lime, c_lime, c_lime, c_lime, false);
