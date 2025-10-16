@@ -7,7 +7,7 @@ draw_set_color(c_lime);
 
 draw_set_valign(fa_top);
 draw_set_halign(fa_middle);
-if (DEV) draw_text(width/2, 0, PLAYER.character_main.state);
+if (DEV) draw_text(width/2, 0, PLAYER.state.name);
 
 
 draw_set_halign(fa_left);

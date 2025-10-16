@@ -715,19 +715,41 @@ function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	scale = 1;
 	color = c_white;
 	alpha = 1;
+	update_begin_function = undefined;
 	update_function = undefined;
+	update_end_function = undefined;
 	draw_function = undefined;
+	draw_reveal_function = undefined;
 	destroy_function = undefined;
 	destroyed = false;
 	
+	static draw_reveal = function(_x = position.x, _y = position.y, _scale=scale) {
+		if (draw_reveal_function != undefined) {
+			draw_reveal_function(self, _x, _y, _scale);
+		} else {
+			draw_simple(_x, _y, _scale);
+		}
+	}
+	static draw_simple = function(_x, _y, _scale) {
+		draw_sprite_ext(sprite_index, image_index, _x, _y, _scale*xscale, _scale*yscale, 0, color, alpha);
+	}
     static draw = function(_x = position.x, _y = position.y, _scale=scale) {
-		if (draw_function != undefined) draw_function(self);
-        draw_sprite_ext(sprite_index, image_index, _x, _y, _scale*xscale, _scale*yscale, 0, color, alpha);
+		if (draw_function != undefined) {
+			draw_function(self, _x, _y, _scale);
+		} else {
+			draw_simple(_x, _y, _scale);
+		}
 		image_index += image_speed;
-		if (image_index > sprite_get_number(sprite_index)) image_index = 0;
+		if (sprite_index != undefined && image_index > sprite_get_number(sprite_index)) image_index = 0;
     }
+	static update_begin = function () {
+		if (update_begin_function != undefined) update_begin_function(self);
+	}
 	static update = function() {
 		if (update_function != undefined) update_function(self);
+	}
+	static update_end = function() {
+		if (update_end_function != undefined) update_end_function(self);
 	}
 	static clear = function(_array=MAP.static_assets) {
 		if (_array == MAP.static_assets) {
@@ -1107,10 +1129,7 @@ function generate_background_surfaces(node_size) {
 
 function draw_background_surfaces() {
 	for (var i=0; i<array_length(MAP.background_surfaces); i++) {
-		if (!surface_exists(MAP.background_surfaces[i])) {
-			generate_background_surfaces(MAP.node_size);
-			break;
-		}
+		if (!surface_exists(MAP.background_surfaces[i])) continue; // should make some way to restore the background surface but meh
 		var _x = (i % MAP.surfaces_per_row) * MAP.background_surface_size;
 		var _y = (i div MAP.surfaces_per_row) * MAP.background_surface_size;
 		draw_surface(MAP.background_surfaces[i], _x, _y);
@@ -1311,7 +1330,7 @@ function generate_battle_areas_cavern() {
 	var ax = area.center_x, ay = area.center_y;
 	var len = radius/random_range(2, 5), dir = irandom_range(15, 165);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_pillar);
-	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(48, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(48, dir+180), o_dungeon_crate);
+	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(48, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(48, dir+180), o_dungeon_chest);
 	}
 	
 	if (array_length(MAP.big_areas) > 2) {
@@ -1320,7 +1339,7 @@ function generate_battle_areas_cavern() {
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
 	var len = radius/random_range(2, 5), dir = irandom(360);
-	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_crate);
+	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
 	}
 	
 	if (array_length(MAP.big_areas) > 3) {
@@ -1329,25 +1348,29 @@ function generate_battle_areas_cavern() {
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
 	var len = radius/random_range(2, 5), dir = irandom(360);
-	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_crate);
+	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
 	}
 	
 }
-
+function generate_rewards_cavern() {
+	var cell = MAP.collision_grid_cell_size;
+	for (var i=0; i<array_length(MAP.remote_areas); i++) {
+		var area = variable_clone(MAP.remote_areas[i]);
+		area.center_y += area.radius/8;
+		var radius = area.radius*cell;
+		var node = find_closest_node(area.center_x, area.center_y);
+		place_asset(node.x, node.y, choose(o_dungeon_relic, o_dungeon_lantern));
+	}
+	
+}
 function place_main_assets_dungeon(subtype) {
 	
 	switch (subtype) {
 		case "cavern":
 			// what we have for now is tent+barrels/campfire and pillars and crates
 			generate_battle_areas_cavern();
-			
+			generate_rewards_cavern();
 			break;
-	}
-	// place pillars
-	for (var i=0; i<array_length(MAP.map_nodes); i++) {
-		if (MAP.map_nodes[i].is_last) {
-			//instance_create_layer(MAP.map_nodes[i].x, MAP.map_nodes[i].y, "Instances", o_dungeon_pillar, {image_xscale : 1});
-		}
 	}
 	
 	

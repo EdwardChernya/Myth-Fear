@@ -104,3 +104,53 @@ opening chests is epic af, they totaly should give rewards aswell
 cool environment refs
 https://www.youtube.com/watch?v=p9dpRGk9O7U&t=48s
 also any cashgrab browser mmorpg has nice environments	https://www.google.com/search?q=league+of+angels+environments&sca_esv=d3099a39e25ef03c&rlz=1C1CHZL_bgBG765BG765&udm=2&biw=1920&bih=954&sxsrf=AE3TifP5gjbeeEN7OE_KTe-d6Pw2ebN7zw%3A1760297118900&ei=ngDsaNbbNpmpxc8PhtGWyA8&ved=0ahUKEwjWouLjsZ-QAxWZVPEDHYaoBfkQ4dUDCBE&uact=5&oq=league+of+angels+environments&gs_lp=Egtnd3Mtd2l6LWltZyIdbGVhZ3VlIG9mIGFuZ2VscyBlbnZpcm9ubWVudHNIzztQmQVYszpwFHgAkAEAmAGMAaAB2yOqAQUyOC4xOLgBA8gBAPgBAZgCKaAC0xioAgrCAgcQIxgnGMkCwgIFEAAYgATCAgoQABiABBhDGIoFwgIHEAAYgAQYCsICChAjGCcYyQIY6gLCAgQQABgewgIGEAAYCBgemAMGiAYBkgcFMjMuMTigB_exAbIHBTExLjE4uAeWGMIHBjAuNC4zN8gHngE&sclient=gws-wiz-img#vhid=75DmVFnbmDfJKM&vssid=mosaic
+
+
+
+
+how is the stat system going to be?
+there will be no damage numbers on screen, no hp bars, so a complex stat system with armor and all kinds of weird things would be counter intuitive
+hard coded simple numbers vs enemy numbers
+armor, damage and hp and statuses
+and magic damage and magic resist
+
+attack damage is purely tied to items and weapon
+
+
+
+
+what kind of upgrades do you get then?
+obv there is stronger items, but every hero has a base weapon
+1 2 3 5 8 13 21 34 55 89?
+but if hp and damage scale like this
+but armor is percentage reduction, then armor could potentially increase the hp level by an insane amount
+
+
+so what kind of upgrades are there again?
+there are level upgrades, this is the level along the curve the thing you are upgrading is
+so weapon is doing 1 2 3 5 8 etc. damage or an ability is doing that
+but % damage abilities dont have that, instead they have a % symbol where there would be the curve visual
+anyway tho there are
+
+weapon upgrades
+ability upgrades
+items
+stat upgrades (hero specific stats)
+
+weapon upgrades is red
+ability upgrades are 
+and stats are green
+
+items are usually grey or colored by rarity
+
+items come from chests
+
+weapon upgrades can also come from chests but glowing in red
+
+abilities come from special locations
+stats also
+
+
+each upgrade can have different tiers, lowest tier is +1 then its +2 and so on
+similar to item rarities
+rarities are grey for common, then silver and gold for now

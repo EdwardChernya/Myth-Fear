@@ -1,7 +1,13 @@
 // math
 function Vector2(_x=0, _y=_x) constructor {
-	x = _x;
-	y = _y;
+	
+	if (is_struct(_x)) {
+		x = _x.x;
+		y = _x.y;
+	} else {
+		x = _x;
+		y = _y;
+	}
 	
 	static Set = function(_other) {
 		x = _other.x;
@@ -58,6 +64,12 @@ function Vector2(_x=0, _y=_x) constructor {
         return sqrt(dx * dx + dy * dy);
     }
 	
+	static from_angle = function(_angle) {
+		var rad = degtorad(_angle);
+		x = cos(rad);
+		y = -sin(rad);
+	}
+	
 	static Copy = function() {
 		return new Vector2(x, y);
 	}
@@ -112,6 +124,17 @@ function to_world(_x, _y) {
 }
 
 //stuff
+
+function xscale_to_target(_struct, tar) {
+	var vec = _struct.position.Copy();
+	vec.Subtract(tar);
+	if (sign(vec.x) != 0) _struct.image_xscale = sign(vec.x);
+}
+
+function get_sine() {
+	return abs(sin(get_timer()/1000000));
+}
+
 function draw_rectangle_width_color(x1, y1, x2, y2, width, color) {
 	var offset = floor(width/2);
 	x1 = floor(x1);
@@ -187,10 +210,11 @@ function normalize(value, min_val, max_val) {
 }
 
 // moving
-function move_w_collision(_speed, _vector, _position) {
+function move_w_collision(_speed, _vector, _struct) {
 	var move_speed = _speed/3;
     var steps = max(1, ceil(move_speed / 2)); // adjust 2 for more steps at higher speeds
-    
+    var _position = _struct.position;
+	
     for (var i = 0; i < steps; i++) {
         var step_vector = _vector.Copy();
         step_vector.Multiply(move_speed / steps);
@@ -200,6 +224,7 @@ function move_w_collision(_speed, _vector, _position) {
         
         if (is_position_walkable(new_position.x, new_position.y)) {
             // Free movement
+			xscale_to_target(_struct, new_position);
             _position.Set(new_position);
         } else {
             // Collision detected - try sliding along walls
@@ -209,6 +234,7 @@ function move_w_collision(_speed, _vector, _position) {
             var slide_y_ok = is_position_walkable(_position.x, new_position.y);
             
             if (slide_x_ok && slide_y_ok) {
+				xscale_to_target(_struct, new_position);
                 // Both directions are clear, choose the one closer to original direction
                 if (abs(step_vector.x) > abs(step_vector.y)) {
                     _position.x = new_position.x; // Prefer horizontal
@@ -217,9 +243,11 @@ function move_w_collision(_speed, _vector, _position) {
                 }
             } else if (slide_x_ok) {
                 // Only horizontal slide available
+				xscale_to_target(_struct, new_position);
                 _position.x = new_position.x;
             } else if (slide_y_ok) {
                 // Only vertical slide available
+				xscale_to_target(_struct, new_position);
                 _position.y = new_position.y;
             } else {
                 // Completely blocked - stop movement

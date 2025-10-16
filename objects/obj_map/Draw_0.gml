@@ -9,22 +9,6 @@ draw_background_fog();
 
 #region draw static and dynamic assets with culling
 
-// find camera bounds on grid
-var cell = collision_grid_cell_size;
-var padding = 9;
-var start_x = max(0, floor((CAMERA.x - CAMERA.world_width/2)/cell) -padding);
-var start_y = max(0, floor((CAMERA.y - CAMERA.world_height/2)/cell) -padding);
-var end_x = min(collision_grid_size, floor((CAMERA.x + CAMERA.world_width/2)/cell) +padding);
-var end_y = min(collision_grid_size, floor((CAMERA.y + CAMERA.world_height/2)/cell) +padding);
-
-// grab all static asssets inside camera bounds
-var culled_array = [];
-for (var yy =start_y; yy < end_y; yy++) {
-	for (var xx =start_x; xx < end_x; xx++) {
-		if (static_assets[xx][yy] != undefined) array_push(culled_array, static_assets[xx][yy]);
-	}
-}
-sort_by_y(culled_array);
 // start drawing
 var static_index = 0;
 var dynamic_index = 0;
@@ -55,6 +39,9 @@ while (dynamic_index < dynamic_count) {
 }
 
 #endregion
+
+// draw particles
+PARTICLE_SYSTEM.draw();
 
 // draw fog
 if (!DEV) draw_fog();

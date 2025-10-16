@@ -22,6 +22,8 @@ collision_grid_size = undefined;
 collision_grid_cell_size = undefined;
 
 dynamic_assets = [];
+culled_array = [];
+interact_array = [];
 
 static_assets = [];
 assets_grid = undefined;

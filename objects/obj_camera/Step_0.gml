@@ -16,20 +16,20 @@ if (window_get_width() != width or window_get_height() != height) {
 camera_set_view_size(view_camera[0], world_width, world_height);
 
 // target is always player for now
-if (!instance_exists(PLAYER) || room != Room1) exit;
+if (!is_struct(PLAYER) || room != Room1) exit;
 
 if (target == PLAYER) {
 	x += (PLAYER.position.x-x)*.1;
 	y += (PLAYER.position.y-y)*.1;
 } else if (target == MOUSE) {
-	if (mouse_check_button_pressed(mb_right)) {
+	if (mouse_check_button_pressed(mb_left) && PLAYER.state != PLAYER.move) {
 		is_dragging = true;
 		drag_start.Set({x:x, y:y});
 		drag_start.xmouse = MOUSE.x;
 		drag_start.ymouse = MOUSE.y;
 	}
 	if (is_dragging) {
-		if (mouse_check_button_released(mb_right)) is_dragging = false;
+		if (mouse_check_button_released(mb_left)) is_dragging = false;
 		x = drag_start.x+drag_start.xmouse/zoom-MOUSE.x/zoom;
 		y = drag_start.y+drag_start.ymouse/zoom-MOUSE.y/zoom;
 	}

@@ -1,7 +1,7 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-#macro VERSION "6dev"
+#macro VERSION "7dev"
 global.dev = false;
 #macro DEV global.dev
 global.gamespeed = 1;
@@ -10,15 +10,20 @@ game_set_speed(60, gamespeed_fps);
 global.game_paused = false;
 #macro PAUSED global.game_paused
 
-
 instance_create_layer(0, 0, "Instances", obj_player);
 instance_create_layer(0, 0, "Instances", obj_camera);
 instance_create_layer(0, 0, "Map", obj_map);
 
-#macro PLAYER obj_player
+global.character_main = obj_player.character_main;
+#macro PLAYER global.character_main
 #macro MAP obj_map
 #macro CAMERA obj_camera
 #macro TILE 64
+
+global.part_system = new particle_system();
+#macro PARTICLE_SYSTEM global.part_system
+global.part_intensity = 1;
+#macro PARTICLE_INTENSITY global.part_intensity
 
 global.mouse_input = {
 	x : 1,
