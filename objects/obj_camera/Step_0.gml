@@ -10,6 +10,7 @@ if (window_get_width() != width or window_get_height() != height) {
 	window_set_size(width, height);
 	var ssize = max(width, height);
 	surface_resize(application_surface, ssize, ssize);
+	display_set_gui_maximize();
 	window_center();
 }
 

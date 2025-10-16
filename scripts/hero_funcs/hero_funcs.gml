@@ -42,11 +42,14 @@ function stat_struct() constructor {
 #region default states
 function animations_struct() constructor {
 	idle = undefined;
-	run = undefined;
+	move = undefined;
 	interact = undefined;
 	aattack = undefined;
 	ablock = undefined;
 	cast = undefined;
+	
+	death = undefined;
+	
 	stun = undefined;
 	flail = undefined;
 }
