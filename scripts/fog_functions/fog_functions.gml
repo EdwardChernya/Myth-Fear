@@ -231,12 +231,12 @@ function draw_fog() {
 		gpu_set_blendmode(bm_subtract);
 		var scale = PLAYER.stats.vision/200;
 		repeat(1) draw_sprite_ext(soft_round_vision, 0, PLAYER.position.x-_x, PLAYER.position.y-_y, scale, scale, 0, c_white, 1);
-		for (var j=0;j<array_length(MAP.dynamic_assets);j++) {
-			var asset = MAP.dynamic_assets[j];
-			if (asset.visible) {
-				draw_sprite_ext(asset.sprite_index, asset.image_index, asset.position.x-_x, asset.position.y-_y, asset.image_xscale, asset.image_yscale, 0, c_white, 1);
-			}
-		}
+		//for (var j=0;j<array_length(MAP.dynamic_assets);j++) {
+		//	var asset = MAP.dynamic_assets[j];
+		//	if (asset.visible) {
+		//		draw_sprite_ext(asset.sprite_index, asset.image_index, asset.position.x-_x, asset.position.y-_y, asset.image_xscale, asset.image_yscale, 0, c_white, 1);
+		//	}
+		//}
 		surface_reset_target();
 		
 		surface_set_target(MAP.permafog_surfaces[i]);

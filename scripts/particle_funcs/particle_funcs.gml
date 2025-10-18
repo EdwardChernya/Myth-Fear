@@ -2,30 +2,52 @@
 
 function particle_system() constructor {
 	
-	surface = undefined;
-	particles = [];
+	add_surface = undefined;
+	normal_surface = undefined;
+	add_particles = [];
+	normal_particles = [];
 	
 	static update = function() {
-		for (var i=0; i<array_length(particles); i++) {
-			particles[i].update();
+		for (var i=0; i<array_length(add_particles); i++) {
+			add_particles[i].update();
+		}
+		for (var i=0; i<array_length(normal_particles); i++) {
+			normal_particles[i].update();
 		}
 	}
-	static draw = function() {
-		if (surface_exists(surface)) {
-			if (surface_get_width(surface) != round(CAMERA.world_width) || surface_get_height(surface) != round(CAMERA.world_height)) {
-				surface_resize(surface, round(CAMERA.world_width), round(CAMERA.world_height));
+	static draw_normal = function() {
+		if (surface_exists(normal_surface)) {
+			if (surface_get_width(normal_surface) != round(CAMERA.world_width) || surface_get_height(normal_surface) != round(CAMERA.world_height)) {
+				surface_resize(normal_surface, round(CAMERA.world_width), round(CAMERA.world_height));
 			}
 		} else {
-			surface = surface_create(round(CAMERA.world_width), round(CAMERA.world_height));
+			normal_surface = surface_create(round(CAMERA.world_width), round(CAMERA.world_height));
 		}
-		gpu_set_blendmode(bm_add);
-		surface_set_target(surface);
+		gpu_set_blendmode(bm_normal);
+		surface_set_target(normal_surface);
 		draw_clear_alpha(c_black, 0);
-		for (var i=0; i<array_length(particles); i++) {
-			particles[i].draw();
+		for (var i=0; i<array_length(normal_particles); i++) {
+			normal_particles[i].draw();
 		}
 		surface_reset_target();
-		draw_surface(surface, floor(CAMERA.x-CAMERA.world_width/2), floor(CAMERA.y-CAMERA.world_height/2));
+		draw_surface(normal_surface, floor(CAMERA.x-CAMERA.world_width/2), floor(CAMERA.y-CAMERA.world_height/2));
+	}
+	static draw_add = function() {
+		if (surface_exists(add_surface)) {
+			if (surface_get_width(add_surface) != round(CAMERA.world_width) || surface_get_height(add_surface) != round(CAMERA.world_height)) {
+				surface_resize(add_surface, round(CAMERA.world_width), round(CAMERA.world_height));
+			}
+		} else {
+			add_surface = surface_create(round(CAMERA.world_width), round(CAMERA.world_height));
+		}
+		gpu_set_blendmode(bm_add);
+		surface_set_target(add_surface);
+		draw_clear_alpha(c_black, 0);
+		for (var i=0; i<array_length(add_particles); i++) {
+			add_particles[i].draw();
+		}
+		surface_reset_target();
+		draw_surface(add_surface, floor(CAMERA.x-CAMERA.world_width/2), floor(CAMERA.y-CAMERA.world_height/2));
 		gpu_set_blendmode(bm_normal);
 	}
 	
@@ -42,7 +64,8 @@ function base_particle(x, y) constructor {
 	draw_function = undefined;
 	update_function = undefined;
 	
-	array_push(PARTICLE_SYSTEM.particles, self);
+	array = PARTICLE_SYSTEM.normal_particles;
+	
 	
 	static update = function() {
 		if (update_function != undefined) update_function(self);
@@ -57,9 +80,9 @@ function base_particle(x, y) constructor {
 		var _f = function(_element, _index) {
 			return (_element == self);
 		}
-		var _index = array_find_index(PARTICLE_SYSTEM.particles, _f);
+		var _index = array_find_index(array, _f);
 		if (_index != -1) {
-			array_delete(PARTICLE_SYSTEM.particles, _index, 1);
+			array_delete(array, _index, 1);
 		}
 		if (destroy_function != undefined and !destroyed) {
 			destroyed = true;
@@ -69,6 +92,9 @@ function base_particle(x, y) constructor {
 }
 
 function reward_trail_particle(x, y, color1, color2=color1) : base_particle(x, y) constructor {
+	
+	array = PARTICLE_SYSTEM.add_particles;
+	array_push(array, self);
 	
 	target = PLAYER.position;
 	life = 60*3;
@@ -109,7 +135,7 @@ function reward_trail_particle(x, y, color1, color2=color1) : base_particle(x, y
 			var to_target = new Vector2(target.x, target.y-32);
 			to_target.Subtract(position);
 			var distance = to_target.Length();
-			if (distance < 3) clear();
+			if (distance < 2) clear();
 			to_target.Normalize();
 			to_target.Multiply(turn_speed);
 			velocity.Add(to_target);
@@ -144,3 +170,15 @@ function reward_trail_particle(x, y, color1, color2=color1) : base_particle(x, y
 	}
 	
 }
+
+
+// particles that need depth sorting
+function dynamic_particle(x, y) constructor {
+	
+}
+
+#region particles
+
+
+
+#endregion

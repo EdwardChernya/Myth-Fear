@@ -4,6 +4,8 @@
 if (room != Room1) exit;
 
 
+// dynamic assets reset
+dynamic_assets = [];
 // init particles
 PARTICLE_SYSTEM.particles = [];
 
@@ -41,8 +43,6 @@ if (!DEV) {
 	CAMERA.smooth_zoom = CAMERA.default_zoom;
 }
 
-// dynamic assets
-dynamic_assets = [];
 array_push(dynamic_assets, PLAYER);
 
 

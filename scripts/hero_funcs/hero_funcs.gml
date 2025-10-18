@@ -3,7 +3,7 @@ function stat_struct() constructor {
 	
 	// base stuff
 	vision = 200;
-	speed = 4;
+	speed = 1.3;
 	
 	hp = 5;
 	armor = 1;
@@ -16,9 +16,10 @@ function stat_struct() constructor {
 	adamage_type = "physical";
 	adamage_bonuses = [];
 	arange = 50;
-	acooldown = 1; // every 1*60 frames or 60/(1*60) per second
-		atimer = 0;
-		acap = .2; // 5 attacks per second, might be too fast
+	aspeed = 1; 
+		acap = 3; 
+	bspeed = 1;
+		bcap = 2; // has to be smaller than attack speed or auto attackers will go crazy?
 	acrit = 0;
 	acritdmg = 2;
 	
@@ -30,16 +31,12 @@ function stat_struct() constructor {
 	
 	
 	static update = function() {
-		if (atimer > 0) {
-			atimer -= 1/60; 
-		} else {
-			atimer = acooldown;
-		}
+		
 	}
 	
 }
 
-#region default states
+// state and animation constructors
 function animations_struct() constructor {
 	idle = undefined;
 	move = undefined;
@@ -53,12 +50,14 @@ function animations_struct() constructor {
 	stun = undefined;
 	flail = undefined;
 }
-function state_struct() constructor {
+function state_struct(_parent) constructor {
 	
 	name = "default";
+	parent = _parent;
 	
 	state_has_ended = false;
 	looping = false;
+	can_force = false;
 	
 	enter_function = undefined;
 	exit_function = undefined;
@@ -67,9 +66,14 @@ function state_struct() constructor {
 	update_end_function = undefined;
 	draw_function = undefined;
 	
+	code_index = 0;
+	code_ran = false;
+	image_speed = 1/60;
+	
 	static enter_state = function() {
-		PLAYER.image_index = 0;
+		parent.image_index = 0;
 		state_has_ended = false;
+		code_ran = false;
 		if (enter_function != undefined) enter_function(self);
 	}
 	static exit_state = function() {
@@ -81,10 +85,10 @@ function state_struct() constructor {
 	}
 	
 	static draw_simple = function() {
-		with (PLAYER) draw_sprite_ext(sprite_index, image_index, floor(position.x), floor(position.y), image_xscale, image_yscale, 0, c_white, image_alpha);
+		with (parent) draw_sprite_ext(sprite_index, image_index, floor(position.x), floor(position.y), image_xscale, image_yscale, 0, c_white, image_alpha);
 	}
 	static draw = function() {
-		PLAYER.image_index += PLAYER.image_speed;
+		parent.image_index += parent.image_speed;
 		if (draw_function != undefined) {
 			draw_function(self);
 		} else {
@@ -92,70 +96,88 @@ function state_struct() constructor {
 		}
 	}
 	static code_ended = function() { // animation cancels on mobile??? ;-;
-		
+		return (parent.image_index >= code_index);
 	}
 	static animation_ended = function() {
 		if (looping) {
 			return state_has_ended;
 		}
-		return (PLAYER.image_index >= sprite_get_number(PLAYER.sprite_index));
+		return (parent.image_index >= sprite_get_number(parent.sprite_index)-parent.image_speed);
 	}
 }
-function idle_state() : state_struct() constructor {
+
+#region default states
+function player_idle_state(_parent) : state_struct(_parent) constructor {
 	
 	name = "idle";
+	parent = _parent;
 	
 	looping = true;
 	can_force = true;
+	image_speed = 1/60;
 	
 	enter_function = function(_self) {
 		with (_self) {
-			PLAYER.revealing_fog = 60;
-			PLAYER.sprite_index = PLAYER.animations.idle;
-			PLAYER.image_speed = 1/60;
+			parent.revealing_fog = 60;
+			parent.sprite_index = parent.animations.idle;
+			parent.image_speed = image_speed;
 			
 		}
 	}
 	update_function = function(_self) {
 		with (_self) {
-			if (PLAYER.near_interact != undefined) {
-				PLAYER.change_state(PLAYER.interact);
+			parent.grid_position.Set(to_grid(parent.position.x), to_grid(parent.position.y));
+			parent.prev_grid_position.Set(parent.grid_position);
+			if (MAP.dynamic_grid[parent.grid_position.x][parent.grid_position.y] == undefined) MAP.dynamic_grid[parent.grid_position.x][parent.grid_position.y] = parent;
+			if (parent.near_interact != undefined) {
+				parent.change_state(parent.interact);
 			}
 		}
 	}
 }
-function move_state() : state_struct() constructor {
+function player_move_state(_parent) : state_struct(_parent) constructor {
 	
 	name = "move";
+	parent = _parent;
+	
 	looping = true;
 	can_force = true;
-	image_speed = 1/60;
+	image_speed = 5/60;
 	enter_function = function(_self) {
 		with (_self) {
-			PLAYER.sprite_index = PLAYER.animations.move;
-			PLAYER.image_speed = image_speed;
+			parent.sprite_index = parent.animations.move;
+			parent.image_speed = image_speed;
 		}
 	}
 	update_function = function(_self) {
 		with (_self) {
-			PLAYER.revealing_fog = 60;
+			if (parent.position.Distance(parent.prev_position) < .2) {
+				parent.sprite_index = parent.animations.idle;
+			} else {
+				parent.sprite_index = parent.animations.move;
+			}
+			parent.prev_position.Set(parent.position);
+			parent.revealing_fog = 60;
 		}
 	}
 }
-function interact_state() : state_struct() constructor {
+function player_interact_state(_parent) : state_struct(_parent) constructor {
 	
 	name = "interact";
+	parent = _parent;
+	
 	looping = true;
 	can_force = true;
 	interact_timer = 999;
+	image_speed = 7/60;
 	
 	enter_function = function(_self) {
 		with (_self) {
-			PLAYER.revealing_fog = 60;
-			interact_timer = PLAYER.near_interact.timer;
-			PLAYER.sprite_index = PLAYER.animations.interact;
-			xscale_to_target(PLAYER, PLAYER.near_interact.position);
-			PLAYER.image_speed = 1/60;
+			parent.revealing_fog = 60;
+			interact_timer = parent.near_interact.timer;
+			parent.sprite_index = parent.animations.interact;
+			xscale_to_target(parent, parent.near_interact.position);
+			parent.image_speed = image_speed;
 		}
 	}
 	update_function = function(_self) {
@@ -163,9 +185,9 @@ function interact_state() : state_struct() constructor {
 			interact_timer -= 1;
 			if (interact_timer <= 0) {
 				state_has_ended = true;
-				if (PLAYER.near_interact != undefined) {
-					PLAYER.near_interact.activate = true;
-					PLAYER.near_interact = undefined;
+				if (parent.near_interact != undefined) {
+					parent.near_interact.activate = true;
+					parent.near_interact = undefined;
 				}
 			}
 		}
@@ -177,14 +199,21 @@ function hero() constructor {
 	
 	// init
 	position = new Vector2();
+	prev_position = new Vector2();
+	
+	grid_position = new Vector2();
+	prev_grid_position = new Vector2();
+	
 	visible = true;
 	stats = new stat_struct();
 	
 	#region states
 	
-	idle = new idle_state();
-	move = new move_state();
-	interact = new interact_state();
+	idle = new player_idle_state(self);
+	move = new player_move_state(self);
+	prev_move_vector = undefined;
+	move_vector_skip = 1;
+	interact = new player_interact_state(self);
 	
 	state = idle;
 	state_buffer = undefined;
@@ -203,25 +232,31 @@ function hero() constructor {
 	
 	// other
 	revealing_fog = 60;
+	flow_field_delay = 60/3;
+	flow_field_timer = flow_field_delay;  
 	near_interact = undefined;
 	
+	
 	static update_begin = function() {
+		// fog
+		if (revealing_fog > 0) revealing_fog -= 1;
+		reveal_fog(position.x, position.y, stats.vision, .67);
+		
+		flow_field_timer -= 1;
+		if (flow_field_timer <= 0) update_flow_field_fast();
+		
 	}
 	static update = function() {
-		position.Set(PLAYER.position);
 		
 		stats.update();
 		
 		// state stuff
 		state.update();
 		
-		// fog
-		if (revealing_fog > 0) revealing_fog -= 1;
-		reveal_fog(position.x, position.y, stats.vision, .67);
 		
 		if (state.animation_ended()) {
 			if (state_buffer != undefined) {
-				change_state(state_buffer);
+				force_state(state_buffer);
 				state_buffer = undefined;
 			} else {
 				change_state(idle);
@@ -259,5 +294,8 @@ function basic_hero() : hero() constructor {
 	animations.idle = _727_13_new;
 	animations.move = _727_13_new;
 	animations.interact = _727_13_new;
+	
+	// enter state manually after setting up animations
+	state.enter_state();
 	
 }

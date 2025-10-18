@@ -38,6 +38,9 @@ button_text = "generate map";
 global.debug_text = new floating_text_manager();
 #macro DEBUG global.debug_text
 
+// other stuff
+#macro IN_COMBAT 300 // 5 seconds since last hit/damage dealt
+
 
 DEBUG.add("game started", c_olive);
 

@@ -19,16 +19,30 @@ function init_grids() {
 	var assets_grid = array_create(grids_size);
 	var static_assets = array_create(grids_size);
 	var fog_grid = array_create(grids_size);
+	var cost_grid = array_create(grids_size);
+	var dynamic_grid = array_create(grids_size);
     for (var _x = 0; _x < grids_size; _x++) {
         collision_grid[_x] = array_create(grids_size, "outside");
 		assets_grid[_x] = array_create(grids_size, undefined);
 		static_assets[_x] = array_create(grids_size, undefined);
 		fog_grid[_x] = array_create(grids_size, "fog");
+		cost_grid[_x] = array_create(grids_size, 9999);
+		dynamic_grid[_x] = array_create(grids_size, undefined);
     }
     MAP.collision_grid = collision_grid;
 	MAP.assets_grid = assets_grid;
 	MAP.fog_grid = fog_grid;
 	MAP.static_assets = static_assets;
+	
+	MAP.dynamic_grid = dynamic_grid;
+	MAP.cost_field = cost_grid;
+	MAP.flow_field = array_create(grids_size);
+    for (var xx = 0; xx < grids_size; xx++) {
+        MAP.flow_field[xx] = array_create(grids_size);
+        for (var yy = 0; yy < grids_size; yy++) {
+            MAP.flow_field[xx][yy] = new Vector2();
+        }
+    }
 	
 }
 
@@ -61,6 +75,16 @@ function is_position_walkable(x, y) {
     
     if (is_valid_grid_cell(grid_x, grid_y)) {
         return (MAP.collision_grid[grid_x][grid_y] == "free");
+    }
+    
+    return false; // Block out-of-bounds positions
+}
+function is_position_walkable_dynamic(_struct, x, y) {
+    var grid_x = floor(x / MAP.collision_grid_cell_size);
+    var grid_y = floor(y / MAP.collision_grid_cell_size);
+    
+    if (is_valid_grid_cell(grid_x, grid_y)) {
+        return (MAP.collision_grid[grid_x][grid_y] == "free" && (MAP.dynamic_grid[grid_x][grid_y] == _struct || MAP.dynamic_grid[grid_x][grid_y] == undefined));
     }
     
     return false; // Block out-of-bounds positions
@@ -1312,15 +1336,25 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
+	var enemy_count = 5+irandom(5);
 	place_asset(ax+lengthdir_x(radius/1.5, 45)+50,  ay+lengthdir_y(radius/1.5, 45),  o_dungeon_arc, {broken : 3});
 	place_asset(ax+lengthdir_x(radius/1.5, 135)-50, ay+lengthdir_y(radius/1.5, 135), o_dungeon_arc, {broken : 3, image_xscale : -1});
 	place_asset(ax+lengthdir_x(radius/1.5, 225), ay+lengthdir_y(radius/1.5, 225)+radius/8, o_dungeon_arc, {broken : 3});
 	place_asset(ax+lengthdir_x(radius/1.5, 315), ay+lengthdir_y(radius/1.5, 315)+radius/8, o_dungeon_arc, {broken : 3, image_xscale : -1});
 	if (area.radius > 16) {
+		enemy_count += irandom(10);
 		place_asset(ax+lengthdir_x(radius/.9, 0),  ay+lengthdir_y(radius/.9, 0),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.375, 180),  ay+lengthdir_y(radius/1.375, 180),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.55, 90) + 64,  ay+lengthdir_y(radius/1.55, 90),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.2, 270) + 64,  ay+lengthdir_y(radius/1.2, 270),  o_dungeon_arc, {broken : 1});
+	}
+	while (enemy_count > 0) {
+		var xx = random_range(ax-radius/3, ax+radius/3);
+		var yy = random_range(ay-radius/3, ay+radius/3);
+		if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+			new skelly(xx, yy);
+			enemy_count -= 1;
+		}
 	}
 	
 	if (array_length(MAP.big_areas) > 1) {
@@ -1328,9 +1362,9 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
-	var len = radius/random_range(2, 5), dir = irandom_range(15, 165);
+	var len = radius/random_range(2, 3), dir = irandom_range(15, 165);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_pillar);
-	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(48, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(48, dir+180), o_dungeon_chest);
+	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(64, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(64, dir+180), o_dungeon_chest);
 	}
 	
 	if (array_length(MAP.big_areas) > 2) {
@@ -1338,7 +1372,7 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
-	var len = radius/random_range(2, 5), dir = irandom(360);
+	var len = radius/random_range(2, 3), dir = irandom(360);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
 	}
 	
@@ -1347,7 +1381,7 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
-	var len = radius/random_range(2, 5), dir = irandom(360);
+	var len = radius/random_range(2, 3), dir = irandom(360);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
 	}
 	
@@ -1368,8 +1402,8 @@ function place_main_assets_dungeon(subtype) {
 	switch (subtype) {
 		case "cavern":
 			// what we have for now is tent+barrels/campfire and pillars and crates
-			generate_battle_areas_cavern();
 			generate_rewards_cavern();
+			generate_battle_areas_cavern();
 			break;
 	}
 	
@@ -1415,6 +1449,7 @@ function generate_underworld_dungeon(subtype) {
 			MAP.map_nodes = create_spiral_map(MAP.size*TILE, r, r/3);
 			DEBUG.add($"main {r} | total {array_length(MAP.map_nodes)}", c_lime);
 			
+			layer_background_sprite(MAP.back_id, dungeon_ground1);
 			// Mark node areas as blocked
 			MAP.node_size = 125;
 			mark_node_collisions(MAP.node_size);
@@ -1430,9 +1465,12 @@ function generate_underworld_dungeon(subtype) {
 			generate_fog_surfaces();
 			
 			find_map_areas();
-			place_main_assets_dungeon(subtype);
+			
+			generate_flow_field(MAP.last_node.x, MAP.last_node.y);
 		
-			layer_background_sprite(MAP.back_id, dungeon_ground1);
+			MAP.interact_array = [];
+			place_main_assets_dungeon(subtype);
+			
 			break;
 	}
 	

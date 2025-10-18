@@ -19,11 +19,14 @@ sort_by_y(dynamic_assets);
 
 // find camera bounds on grid
 var cell = collision_grid_cell_size;
-var padding = 9;
-var start_x = max(0, floor((CAMERA.x - CAMERA.world_width/2)/cell) -padding);
-var start_y = max(0, floor((CAMERA.y - CAMERA.world_height/2)/cell) -padding);
-var end_x = min(collision_grid_size, floor((CAMERA.x + CAMERA.world_width/2)/cell) +padding);
-var end_y = min(collision_grid_size, floor((CAMERA.y + CAMERA.world_height/2)/cell) +padding);
+var start_x = max(0, floor((CAMERA.x - CAMERA.world_width/2)/cell) -3);
+var start_y = max(0, floor((CAMERA.y - CAMERA.world_height/2)/cell) -2);
+var end_x = min(collision_grid_size, floor((CAMERA.x + CAMERA.world_width/2)/cell) +3);
+var end_y = min(collision_grid_size, floor((CAMERA.y + CAMERA.world_height/2)/cell) +9);
+cull_start_x = max(0, floor((CAMERA.x - CAMERA.world_width/2)/cell)-1);
+cull_start_y = max(0, floor((CAMERA.y - CAMERA.world_height/2)/cell)-1);
+cull_end_x = min(collision_grid_size, floor((CAMERA.x + CAMERA.world_width/2)/cell)+1);
+cull_end_y = min(collision_grid_size, floor((CAMERA.y + CAMERA.world_height/2)/cell)+1);
 
 // grab all static asssets inside camera bounds
 culled_array = [];

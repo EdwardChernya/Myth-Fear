@@ -41,13 +41,15 @@ while (dynamic_index < dynamic_count) {
 #endregion
 
 // draw particles
-PARTICLE_SYSTEM.draw();
+PARTICLE_SYSTEM.draw_normal();
 
 // draw fog
 if (!DEV) draw_fog();
 fog_sprite_index += 1/60;
 if (fog_sprite_index > sprite_get_number(bg_stars_256)) fog_sprite_index = 0;
 
+// draw particles
+PARTICLE_SYSTEM.draw_add();
 
 #region dev visuals
 if (!DEV) exit;
@@ -56,13 +58,41 @@ if (!DEV) exit;
 //draw_line_width_color(CAMERA.x-8, CAMERA.y-8, CAMERA.x-8, CAMERA.y+7, 2, c_olive, c_olive);
 //draw_line_width_color(CAMERA.x+7, CAMERA.y-8, CAMERA.x+7, CAMERA.y+7, 2, c_olive, c_olive);
 
+// flow field
+if (draw_flow) {
+for (var i=cull_start_x; i<cull_end_x; i++) {
+	var cell = collision_grid_cell_size;
+	draw_set_alpha(.25);
+	draw_set_color(c_lime);
+	for (var j=cull_start_y; j<cull_end_y; j++) {
+		var vec = flow_field[i][j];
+		var gridx = i*cell+cell/2, gridy = j*cell+cell/2;
+		draw_line_width(gridx, gridy, gridx+vec.x*cell/2, gridy+vec.y*cell/2, 2);
+	}
+	draw_set_alpha(1);
+}
+}
+
+// dynamic collision grid
+if (draw_dynamic) {
+for (var i=cull_start_x; i<cull_end_x; i++) {
+	var s = collision_grid_cell_size;
+	draw_set_alpha(.25);
+	var c = c_green;
+	for (var j=cull_start_y; j<cull_end_y; j++) {
+		if (dynamic_grid[i][j] != undefined) draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
+	}
+	draw_set_alpha(1);
+}
+}
+
 // draw collision grid
 if (draw_collision) {
-for (var i=0; i<array_length(collision_grid); i++) {
+for (var i=cull_start_x; i<cull_end_x; i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
 	var c = c_fuchsia;
-	for (var j=0; j<array_length(collision_grid[i]); j++) {
+	for (var j=cull_start_y; j<cull_end_y; j++) {
 		if (collision_grid[i][j] == "blocked") draw_rectangle_color(i*s, j*s, i*s+s-1, j*s+s-1, c, c, c, c, false);
 	}
 	draw_set_alpha(1);
@@ -71,10 +101,10 @@ for (var i=0; i<array_length(collision_grid); i++) {
 
 // draw assets grid
 if (draw_asset) {
-for (var i=0; i<array_length(assets_grid); i++) {
+for (var i=cull_start_x; i<cull_end_x; i++) {
 	var s = collision_grid_cell_size;
 	draw_set_alpha(.25);
-	for (var j=0; j<array_length(assets_grid[i]); j++) {
+	for (var j=cull_start_y; j<cull_end_y; j++) {
 		if (assets_grid[i][j] != undefined) {
 			var c = c_blue;
 			if (assets_grid[i][j].type == "rock") c = c_red;
@@ -86,7 +116,6 @@ for (var i=0; i<array_length(assets_grid); i++) {
 }
 
 
-draw_set_color(c_lime);
 
 if (draw_nodes) {
 // Draw connections

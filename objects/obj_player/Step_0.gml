@@ -26,7 +26,7 @@ if (PLAYER.state == PLAYER.move) {
 	move_vector.Subtract(move_start);
 	move_vector.Normalize();
 	
-	move_w_collision(PLAYER.stats.speed, move_vector, PLAYER);
+	move_w_collision(move_vector, PLAYER);
 	
 }
 #endregion
@@ -35,11 +35,13 @@ if (PLAYER.state == PLAYER.move) {
 position.Set(PLAYER.position);
 
 
-if (press_in_rectangle(left_area)) destroy_circle_area(PLAYER.position.x, PLAYER.position.y, 100);
+//if (press_in_rectangle(left_area)) destroy_circle_area(PLAYER.position.x, PLAYER.position.y, 100);
 
 
 if (keyboard_check_pressed(ord("A"))) instance_create_layer(mouse_x, mouse_y, "Instances", choose(o_dungeon_relic, o_dungeon_lantern), {image_xscale : 1});
 
 //if (keyboard_check_pressed(ord("Q"))) destroy_square_area_grid(to_grid(mouse_x), to_grid(mouse_y), to_grid(mouse_x), to_grid(mouse_y));
 
-if (keyboard_check_pressed(ord("S"))) repeat(1) new reward_trail_particle(mouse_x, mouse_y, c_aqua, c_blue);
+if (keyboard_check_pressed(ord("S"))) {
+	var dude = new skelly(mouse_x, mouse_y);
+}

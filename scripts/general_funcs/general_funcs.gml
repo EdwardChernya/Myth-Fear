@@ -9,9 +9,14 @@ function Vector2(_x=0, _y=_x) constructor {
 		y = _y;
 	}
 	
-	static Set = function(_other) {
-		x = _other.x;
-		y = _other.y;
+	static Set = function(_x, _y=_x) {
+		if (is_struct(_x)) {
+			x = _x.x;
+			y = _x.y;
+		} else {
+			x = _x;
+			y = _y;
+		}
 	}
 	
 	static Normalize = function() {
@@ -68,6 +73,40 @@ function Vector2(_x=0, _y=_x) constructor {
 		var rad = degtorad(_angle);
 		x = cos(rad);
 		y = -sin(rad);
+	}
+	static vector_array_from_angle = function(_angle) {
+		var rad = degtorad(_angle);
+		return [cos(rad), -sin(rad)];
+	}
+	static vector_array_from_angle_grid = function(_angle) {
+		var rad = degtorad(_angle);
+		return [round(cos(rad)), round(-sin(rad))];
+	}
+	static to_target = function(_x, _y=_x) {
+		if (is_struct(_x)) {
+			var dir = _x.Copy();
+		} else {
+			var dir = new Vector2(_x, _y);
+		}
+		dir.Subtract(self);
+		self.Set(dir);
+	}
+	
+	static to_angle = function(){
+		return radtodeg(arctan2(-y, x));
+	}
+	
+	static Round = function() {
+		x = round(x);
+		y = round(y);
+	}
+	static Floor = function() {
+		x = floor(x);
+		y = floor(y);
+	}
+	static Ceil = function() {
+		x = ceil(x);
+		y = ceil(y);
 	}
 	
 	static Copy = function() {
@@ -128,7 +167,7 @@ function to_world(_x, _y) {
 function xscale_to_target(_struct, tar) {
 	var vec = _struct.position.Copy();
 	vec.Subtract(tar);
-	if (sign(vec.x) != 0) _struct.image_xscale = sign(vec.x);
+	if (sign(vec.x) != 0 && abs(vec.x) > .01) _struct.image_xscale = sign(vec.x);
 }
 
 function get_sine() {
@@ -210,10 +249,12 @@ function normalize(value, min_val, max_val) {
 }
 
 // moving
-function move_w_collision(_speed, _vector, _struct) {
-	var move_speed = _speed/3;
+function move_w_collision(_vector, _struct) {
+	var move_speed = _struct.stats.speed;
     var steps = max(1, ceil(move_speed / 2)); // adjust 2 for more steps at higher speeds
     var _position = _struct.position;
+	var _grid_pos = _struct.grid_position;
+	var _prev_grid_pos = _struct.prev_grid_position;
 	
     for (var i = 0; i < steps; i++) {
         var step_vector = _vector.Copy();
@@ -222,16 +263,17 @@ function move_w_collision(_speed, _vector, _struct) {
 		var new_position = _position.Copy();
 		new_position.Add(step_vector);
         
-        if (is_position_walkable(new_position.x, new_position.y)) {
+        if (is_position_walkable_dynamic(_struct, new_position.x, new_position.y)) {
             // Free movement
 			xscale_to_target(_struct, new_position);
             _position.Set(new_position);
         } else {
+			_struct.prev_move_vector = undefined;
             // Collision detected - try sliding along walls
             // Try horizontal movement only
-            var slide_x_ok = is_position_walkable(new_position.x, _position.y);
+            var slide_x_ok = is_position_walkable_dynamic(_struct, new_position.x, _position.y);
             // Try vertical movement only  
-            var slide_y_ok = is_position_walkable(_position.x, new_position.y);
+            var slide_y_ok = is_position_walkable_dynamic(_struct, _position.x, new_position.y);
             
             if (slide_x_ok && slide_y_ok) {
 				xscale_to_target(_struct, new_position);
@@ -255,6 +297,15 @@ function move_w_collision(_speed, _vector, _struct) {
             }
         }
     }
+	
+	_grid_pos.Set(to_grid(_position.x), to_grid(_position.y));
+	if (_grid_pos.x != _prev_grid_pos.x || _grid_pos.y != _prev_grid_pos.y) {
+		MAP.dynamic_grid[_grid_pos.x][_grid_pos.y] = _struct;
+		MAP.dynamic_grid[_prev_grid_pos.x][_prev_grid_pos.y] = undefined;
+		_prev_grid_pos.Set(_grid_pos);
+		if (_struct.move_vector_skip <= 0) _struct.prev_move_vector = undefined;
+		_struct.move_vector_skip -= 1;
+	}
 }
 
 

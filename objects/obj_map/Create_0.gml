@@ -16,10 +16,20 @@ left_over_areas = undefined;
 
 fog_grid = undefined;
 
+flow_field = undefined;
+cost_field = undefined;
+
 collision_scale = 4;
 collision_grid = undefined;
 collision_grid_size = undefined;
 collision_grid_cell_size = undefined;
+
+cull_start_x = 0;
+cull_start_y = 0;
+cull_end_x = 0;
+cull_end_y = 0;
+
+dynamic_grid = undefined;
 
 dynamic_assets = [];
 culled_array = [];
@@ -45,10 +55,16 @@ background_fog_surfaces = undefined;
 permafog_surfaces = undefined;
 fog_surfaces = undefined;
 
+
+
+
+// draw dev visuals
 draw_collision = false;
+draw_dynamic = true;
 draw_asset = false;
 draw_nodes = false;
-draw_areas = true;
+draw_areas = false;
+draw_flow = false;
 
 #region assets
 dungeon_rocks =  [
