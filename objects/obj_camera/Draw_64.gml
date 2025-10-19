@@ -20,7 +20,7 @@ if (DEV) {
 	
 	draw_set_halign(fa_right);
 	draw_text(CAMERA.width, 200, MAP.map_name);
-	draw_text(CAMERA.width, 224, $"dynamic {array_length(MAP.dynamic_assets)} total {assets_drawn}");
+	draw_text(CAMERA.width, 224, $"dynamic {dynamic_drawn} static {static_drawn}");
 	
 }
 

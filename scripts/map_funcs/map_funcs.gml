@@ -730,6 +730,7 @@ function static_asset(_x, _y, _grid_x, _grid_y, _type) constructor {
 	position = new Vector2(x, y);
 	grid_x = _grid_x;
 	grid_y = _grid_y;
+	grid_position = new Vector2(grid_x, grid_y);
     type = _type;
     sprite_index = undefined;
 	image_index = 0;
@@ -1336,21 +1337,21 @@ function generate_battle_areas_cavern() {
 	var radius = area.radius *cell;
 	area.center_y += area.radius/8;
 	var ax = area.center_x, ay = area.center_y;
-	var enemy_count = 5+irandom(5);
+	var enemy_count = area.radius+irandom(area.radius);
 	place_asset(ax+lengthdir_x(radius/1.5, 45)+50,  ay+lengthdir_y(radius/1.5, 45),  o_dungeon_arc, {broken : 3});
 	place_asset(ax+lengthdir_x(radius/1.5, 135)-50, ay+lengthdir_y(radius/1.5, 135), o_dungeon_arc, {broken : 3, image_xscale : -1});
 	place_asset(ax+lengthdir_x(radius/1.5, 225), ay+lengthdir_y(radius/1.5, 225)+radius/8, o_dungeon_arc, {broken : 3});
 	place_asset(ax+lengthdir_x(radius/1.5, 315), ay+lengthdir_y(radius/1.5, 315)+radius/8, o_dungeon_arc, {broken : 3, image_xscale : -1});
 	if (area.radius > 16) {
-		enemy_count += irandom(10);
+		enemy_count += irandom(area.radius);
 		place_asset(ax+lengthdir_x(radius/.9, 0),  ay+lengthdir_y(radius/.9, 0),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.375, 180),  ay+lengthdir_y(radius/1.375, 180),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.55, 90) + 64,  ay+lengthdir_y(radius/1.55, 90),  o_dungeon_arc, {broken : 1});
 		place_asset(ax+lengthdir_x(radius/1.2, 270) + 64,  ay+lengthdir_y(radius/1.2, 270),  o_dungeon_arc, {broken : 1});
 	}
 	while (enemy_count > 0) {
-		var xx = random_range(ax-radius/3, ax+radius/3);
-		var yy = random_range(ay-radius/3, ay+radius/3);
+		var xx = random_range(ax-radius/2, ax+radius/2);
+		var yy = random_range(ay-radius/2, ay+radius/2);
 		if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
 			new skelly(xx, yy);
 			enemy_count -= 1;
@@ -1366,6 +1367,15 @@ function generate_battle_areas_cavern() {
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_pillar);
 	place_asset(ax+lengthdir_x(len, dir)+lengthdir_x(64, dir+180), ay+lengthdir_y(len, dir)+lengthdir_y(64, dir+180), o_dungeon_chest);
 	}
+	enemy_count = area.radius/2 + irandom(area.radius);
+	while (enemy_count > 0) {
+		var xx = random_range(ax-radius/1.5, ax+radius/1.5);
+		var yy = random_range(ay-radius/1.5, ay+radius/1.5);
+		if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+			new skelly(xx, yy);
+			enemy_count -= 1;
+		}
+	}
 	
 	if (array_length(MAP.big_areas) > 2) {
 	var area = variable_clone(MAP.big_areas[2]);
@@ -1374,6 +1384,15 @@ function generate_battle_areas_cavern() {
 	var ax = area.center_x, ay = area.center_y;
 	var len = radius/random_range(2, 3), dir = irandom(360);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
+	}
+	enemy_count = area.radius/2 + irandom(area.radius);
+	while (enemy_count > 0) {
+		var xx = random_range(ax-radius/1.5, ax+radius/1.5);
+		var yy = random_range(ay-radius/1.5, ay+radius/1.5);
+		if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+			new skelly(xx, yy);
+			enemy_count -= 1;
+		}
 	}
 	
 	if (array_length(MAP.big_areas) > 3) {
@@ -1384,6 +1403,52 @@ function generate_battle_areas_cavern() {
 	var len = radius/random_range(2, 3), dir = irandom(360);
 	place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_chest);
 	}
+	enemy_count = area.radius/2 + irandom(area.radius);
+	while (enemy_count > 0) {
+		var xx = random_range(ax-radius/1.5, ax+radius/1.5);
+		var yy = random_range(ay-radius/1.5, ay+radius/1.5);
+		if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+			new skelly(xx, yy);
+			enemy_count -= 1;
+		}
+	}
+	
+	// remote and left over areas
+	for (var i=0; i<array_length(MAP.remote_areas_pass2); i++) {
+		var area = variable_clone(MAP.remote_areas_pass2[i]);
+		var radius = area.radius *cell;
+		area.center_y += area.radius/8;
+		var ax = area.center_x, ay = area.center_y;
+		var len = radius/random_range(2, 3), dir = irandom(360);
+		if (irandom(9) < 6) place_asset(ax+lengthdir_x(len, dir), ay+lengthdir_y(len, dir), o_dungeon_crate);
+		enemy_count = area.radius/2;
+		while (enemy_count > 0) {
+			var xx = random_range(ax-radius, ax+radius);
+			var yy = random_range(ay-radius, ay+radius);
+			if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+				new skelly(xx, yy);
+				enemy_count -= 1;
+			}
+		}
+	}
+	for (var i=0; i<array_length(MAP.left_over_areas); i++) {
+		var area = variable_clone(MAP.left_over_areas[i]);
+		var radius = area.radius *cell;
+		area.center_y += area.radius/8;
+		var ax = area.center_x, ay = area.center_y;
+		var len = radius/random_range(2, 3), dir = irandom(360);
+		enemy_count = ceil(area.radius/3);
+		while (enemy_count > 0) {
+			var xx = random_range(ax-radius, ax+radius);
+			var yy = random_range(ay-radius, ay+radius);
+			if (MAP.collision_grid[to_grid(xx)][to_grid(yy)] == "free" && MAP.dynamic_grid[to_grid(xx)][to_grid(yy)] == undefined) {
+				new skelly(xx, yy);
+				enemy_count -= 1;
+			}
+		}
+	}
+	
+	
 	
 }
 function generate_rewards_cavern() {

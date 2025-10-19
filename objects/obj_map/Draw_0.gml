@@ -14,7 +14,8 @@ var static_index = 0;
 var dynamic_index = 0;
 var static_count = array_length(culled_array);
 var dynamic_count = array_length(dynamic_assets);
-CAMERA.assets_drawn = static_count + dynamic_count;
+CAMERA.static_drawn = static_count;
+CAMERA.dynamic_drawn = 0;
 // Merge draw static and dynamic assets in correct depth order
 while (static_index < static_count && dynamic_index < dynamic_count) {
     if (culled_array[static_index].y <= dynamic_assets[dynamic_index].position.y) {
@@ -23,7 +24,10 @@ while (static_index < static_count && dynamic_index < dynamic_count) {
         static_index++;
     } else {
         // Dynamic asset should draw first
-        dynamic_assets[dynamic_index].draw();
+		if (!culled(dynamic_assets[dynamic_index])) {
+			CAMERA.dynamic_drawn += 1;
+			dynamic_assets[dynamic_index].draw();
+		}
         dynamic_index++;
     }
 }
@@ -34,7 +38,10 @@ while (static_index < static_count) {
 }
 // Draw any remaining dynamic assets  
 while (dynamic_index < dynamic_count) {
-    dynamic_assets[dynamic_index].draw();
+    if (!culled(dynamic_assets[dynamic_index])) {
+		CAMERA.dynamic_drawn += 1;
+		dynamic_assets[dynamic_index].draw();
+	}
     dynamic_index++;
 }
 

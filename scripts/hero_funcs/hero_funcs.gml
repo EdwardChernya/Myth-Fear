@@ -42,7 +42,6 @@ function animations_struct() constructor {
 	move = undefined;
 	interact = undefined;
 	aattack = undefined;
-	ablock = undefined;
 	cast = undefined;
 	
 	death = undefined;

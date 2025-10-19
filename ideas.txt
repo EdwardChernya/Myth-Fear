@@ -204,15 +204,16 @@ drunir the cursed (cursed knight) [
 	weapon
 		aevird, old fate, a greatsword once forged for the ancient knights before the dark war, but perhaps this blade can shine once more
 		deals true damage to creatures of darkness (darklings when i add them)
-		
+	
+	passive - never at rest
+		periodically enemies spawn just outside of your vision and attack you, prefers positions in front of your move vector to synergise with the flip ability usage
+		enemies get stronger if you stay in one area/place for too long, and will always end up killing you (unless you mega broken idk)
+		killing these enemies grants no exp tho, to prevent encouraging sitting and farming in place
+	
 	ability and upgrade ideas
 		shockwave strike, sends wc3 chieftain particle effects
 		stab, flip and smash ability, 2 part damage works on flail enemies, if cant flail just the stab part goes through
 			can upgrade to flail higher curve units except bosses
-		passive - never at rest
-			periodically enemies spawn just outside of your vision and attack you, prefers positions in front of your move vector to synergise with the flip ability usage
-			enemies get stronger if you stay in one area/place for too long, and will always end up killing you (unless you mega broken idk)
-			killing these enemies grants no exp tho, to prevent encouraging sitting and farming in place
 		curse, aoe remove attack, armor or other stats depending on upgrades and talents, curses can stack and remain for a duration
 		thornment, passive ability reflect some damage back to attackers (good vs ranged)
 		annihilate, single target, deal 30% max health damage, aatacks reduce annihilate' cooldown by 1s

@@ -60,7 +60,7 @@ fog_surfaces = undefined;
 
 // draw dev visuals
 draw_collision = false;
-draw_dynamic = true;
+draw_dynamic = false;
 draw_asset = false;
 draw_nodes = false;
 draw_areas = false;

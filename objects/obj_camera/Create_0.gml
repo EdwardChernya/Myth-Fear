@@ -13,7 +13,8 @@ world_height = height/zoom;
 
 is_fullscreen = false;
 
-assets_drawn = 0;
+static_drawn = 0;
+dynamic_drawn = 0;
 
 
 target = undefined;

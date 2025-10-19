@@ -164,6 +164,10 @@ function to_world(_x, _y) {
 
 //stuff
 
+function culled(_struct) {
+	return !point_in_rectangle(_struct.grid_position.x, _struct.grid_position.y, MAP.cull_start_x-1, MAP.cull_start_y, MAP.cull_end_x+1, MAP.cull_end_y+3);
+}
+
 function xscale_to_target(_struct, tar) {
 	var vec = _struct.position.Copy();
 	vec.Subtract(tar);

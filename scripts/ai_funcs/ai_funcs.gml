@@ -43,7 +43,6 @@ function enemy() constructor {
 	// enemy specific
 	in_combat = 0;
 	aggro_range = 125;
-	leash_range = aggro_range*3;
 	
 	
 	static update_begin = function() {
@@ -72,6 +71,7 @@ function enemy() constructor {
 	}
 	
 	static draw = function() {
+		if (!visible) return;
 		if ((MAP.fog_grid[grid_position.x][grid_position.y] == "fog" || MAP.fog_grid[grid_position.x][grid_position.y] == "revealed") && !DEV) return;
 		state.draw();
 	}
@@ -133,10 +133,10 @@ function ai_idle_state(_parent) : state_struct(_parent) constructor {
 			parent.grid_position.Set(to_grid(parent.position.x), to_grid(parent.position.y));
 			parent.prev_grid_position.Set(parent.grid_position);
 			if (MAP.dynamic_grid[parent.grid_position.x][parent.grid_position.y] == undefined) MAP.dynamic_grid[parent.grid_position.x][parent.grid_position.y] = parent;
-			var range = parent.in_combat>0 ? parent.leash_range : parent.aggro_range;
-			if (point_in_ellipse(parent.position.x, parent.position.y, PLAYER.position.x, PLAYER.position.y, range, .67)) {
+			if (point_in_ellipse(parent.position.x, parent.position.y, PLAYER.position.x, PLAYER.position.y, parent.aggro_range, .67)) {
 				with (parent) change_state(move);
 			}
+			if (parent.in_combat) with(parent) change_state(move);
 		}
 	}
 }
@@ -166,7 +166,6 @@ function ai_move_state(_parent) : state_struct(_parent) constructor {
 			if (dis < parent.stats.arange) {
 				with (parent) change_state(aattack);
 			}
-			if (dis > parent.leash_range && parent.in_combat <= 0) with (parent) change_state(idle);
 			
 		}
 	}
@@ -954,9 +953,12 @@ function move_with_flow_field_ai(_struct) {
 	            move_vector.Set(alt_dir[0], alt_dir[1]);
 				_struct.prev_move_vector = move_vector;
 				_struct.move_vector_skip = 1;
-				if ((_struct.grid_position.x == PLAYER.grid_position.x || _struct.grid_position.y == PLAYER.grid_position.y) ||
-				(_struct.grid_position.x+move_vector.x == PLAYER.grid_position.x || _struct.grid_position.y+move_vector.y == PLAYER.grid_position.y)) _struct.move_vector_skip = 3;
-	            found_alternative = true;
+				if (_struct.position.Distance(PLAYER.position) < _struct.stats.arange*2) {
+					_struct.move_vector_skip = 2;
+					if ((_struct.grid_position.x == PLAYER.grid_position.x || _struct.grid_position.y == PLAYER.grid_position.y) ||
+					(_struct.grid_position.x+move_vector.x == PLAYER.grid_position.x || _struct.grid_position.y+move_vector.y == PLAYER.grid_position.y)) _struct.move_vector_skip = 3;
+				}
+				found_alternative = true;
 	            break;
 	        }
 	    }
@@ -966,6 +968,8 @@ function move_with_flow_field_ai(_struct) {
 	    if (!found_alternative) {
 	        // Optional: set move_vector to zero to stop movement
 			//with (_struct) change_state(idle);
+			
+			DEBUG.add($"alternative blocked", c_red);
 			return;
 	    }
 	}
