@@ -44,6 +44,7 @@
     {"name":"vfx_funcs","order":6,"path":"scripts/vfx_funcs/vfx_funcs.yy",},
     {"name":"_532_sized","order":8,"path":"sprites/_532_sized/_532_sized.yy",},
     {"name":"_727_13_new","order":2,"path":"sprites/_727_13_new/_727_13_new.yy",},
+    {"name":"_cape","order":9,"path":"sprites/_cape/_cape.yy",},
     {"name":"chest_add","order":56,"path":"sprites/chest_add/chest_add.yy",},
     {"name":"chest","order":55,"path":"sprites/chest/chest.yy",},
     {"name":"dungeon_arc2","order":1,"path":"sprites/dungeon_arc2/dungeon_arc2.yy",},

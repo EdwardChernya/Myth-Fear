@@ -15,6 +15,9 @@ function cloth(_parent, _color1, _color2) constructor {
 	c2 = _color2;
 	width = 16;
 	
+	tex = sprite_get_texture(_cape, 0);
+	
+	// setup arrays
 	for (var i=0;i<length;i++) {
 		array_push(points, new Vector2(parent.position));
 		array_push(velocities, new Vector2());
@@ -84,8 +87,8 @@ function cloth(_parent, _color1, _color2) constructor {
 	
 	static draw = function() {
 		var color = make_color_rgb(40, 40, 40);
-		draw_set_color(color);
-		draw_primitive_begin(pr_trianglelist);
+		draw_set_color(c_ltgray);
+		draw_primitive_begin_texture(pr_trianglelist, tex);
 		for (var i = 0; i < array_length(points) - 1; i++) {
         
 	        // Direction for this segment
@@ -105,14 +108,14 @@ function cloth(_parent, _color1, _color2) constructor {
 	        // For the first segment, draw both triangles normally
 			if (i == 0) {
 			    // Triangle 1
-			    draw_vertex(points[i].x + perp1_x, points[i].y + perp1_y);
-			    draw_vertex(points[i].x - perp1_x, points[i].y - perp1_y);
-			    draw_vertex(points[i+1].x + perp2_x, points[i+1].y + perp2_y);
+			    draw_vertex_texture(points[i].x + perp1_x, points[i].y + perp1_y, 1, 0);
+			    draw_vertex_texture(points[i].x - perp1_x, points[i].y - perp1_y, 0, 0);
+			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+1)/length);
         
 			    // Triangle 2
-			    draw_vertex(points[i].x - perp1_x, points[i].y - perp1_y);
-			    draw_vertex(points[i+1].x - perp2_x, points[i+1].y - perp2_y);
-			    draw_vertex(points[i+1].x + perp2_x, points[i+1].y + perp2_y);
+			    draw_vertex_texture(points[i].x - perp1_x, points[i].y - perp1_y, 0, 0);
+			    draw_vertex_texture(points[i+1].x - perp2_x, points[i+1].y - perp2_y, 0, (i+2)/length);
+			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length);
 			} else {
 			    // For subsequent segments, reuse the previous segment's end vertices
 			    // as the start vertices for this segment
@@ -132,14 +135,14 @@ function cloth(_parent, _color1, _color2) constructor {
 			    var prev_perp2_y = prev_dir_x * width * 0.5;
 				
 			    // Triangle 1 - reuse previous right vertex and create new right vertex
-			    draw_vertex(points[i].x + prev_perp1_x, points[i].y + prev_perp1_y); // Reused from previous
-			    draw_vertex(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y); // Reused from previous  
-			    draw_vertex(points[i+1].x + perp2_x, points[i+1].y + perp2_y); // New
+			    draw_vertex_texture(points[i].x + prev_perp1_x, points[i].y + prev_perp1_y, 1, (i+1)/length); // Reused from previous
+			    draw_vertex_texture(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y, 0, (i+1)/length); // Reused from previous  
+			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length); // New
         
 			    // Triangle 2 - reuse previous left vertex and create new left vertex
-			    draw_vertex(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y); // Reused from previous
-			    draw_vertex(points[i+1].x - perp2_x, points[i+1].y - perp2_y); // New
-			    draw_vertex(points[i+1].x + perp2_x, points[i+1].y + perp2_y); // New
+			    draw_vertex_texture(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y, 0, (i+1)/length); // Reused from previous
+			    draw_vertex_texture(points[i+1].x - perp2_x, points[i+1].y - perp2_y, 0, (i+2)/length); // New
+			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length); // New
 			}
 	    }
     
