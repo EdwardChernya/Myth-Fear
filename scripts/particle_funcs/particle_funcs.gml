@@ -47,6 +47,7 @@ function particle_system() constructor {
 			add_particles[i].draw();
 		}
 		surface_reset_target();
+		
 		draw_surface(add_surface, floor(CAMERA.x-CAMERA.world_width/2), floor(CAMERA.y-CAMERA.world_height/2));
 		gpu_set_blendmode(bm_normal);
 	}

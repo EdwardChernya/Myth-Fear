@@ -164,6 +164,19 @@ function to_world(_x, _y) {
 
 //stuff
 
+function draw_surface_downscaled(_surf, _x, _y, _downscale) {
+	var width = surface_get_width(_surf), height = surface_get_height(_surf);
+	var temp = surface_create(round(width/_downscale), round(height/_downscale));
+	
+	surface_set_target(temp);
+	draw_clear_alpha(c_black, 0);
+	draw_surface_stretched(_surf, 0, 0, round(width/_downscale), round(height/_downscale));
+	surface_reset_target();
+		
+	draw_surface_stretched(temp, _x, _y, round(width), round(height));
+	surface_free(temp);
+}
+
 function culled(_struct) {
 	return !point_in_rectangle(_struct.grid_position.x, _struct.grid_position.y, MAP.cull_start_x-1, MAP.cull_start_y, MAP.cull_end_x+1, MAP.cull_end_y+3);
 }

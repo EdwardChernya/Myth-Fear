@@ -41,7 +41,7 @@ global.debug_text = new floating_text_manager();
 // other stuff
 #macro IN_COMBAT 300 // 5 seconds since last hit/damage dealt
 
-
+if (webgl_enabled) DEBUG.add("webgl enabled", c_olive);
 DEBUG.add("game started", c_olive);
 
 

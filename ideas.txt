@@ -197,3 +197,8 @@ build codes are base64 encoded strings of stuff that goes in the build
 
 elite mobs drop signature items/spells
 stuff like red lightning, which applies a short stun and then fear afterwards, comes from goblin shaman? sure
+
+
+
+how do you make it fun and high stakes?
+has to be very easy to die, unless you are building full tank at which point you shouldnt be dying too easily but there could be machanics that insta kill you in boss fights

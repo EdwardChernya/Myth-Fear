@@ -46,6 +46,7 @@ if (keyboard_check_pressed(ord("S"))) {
 	var vec = new Vector2(mouse_x, mouse_y);
 	vec.to_target(PLAYER.position);
 	vec.Normalize();
-	vec.Multiply(2);
+	vec.Multiply(4);
 	PLAYER.cape.add_force(vec);
+	new reward_trail_particle(mouse_x, mouse_y, c_red);
 }

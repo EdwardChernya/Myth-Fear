@@ -3,11 +3,12 @@ function cloth(_parent, _color1, _color2) constructor {
 	parent = _parent;
 	
 	length = 10;
+	surface = surface_create(128, 128);
 	points = [];
 	velocities = [];
 	
 	grav = .02; // force of gravity pulling towards the ground
-	distance = 3; // maximum distance between points
+	distance = 4; // maximum distance between points
 	stiffness = .05;
 	damping = .95;
 	
@@ -88,8 +89,13 @@ function cloth(_parent, _color1, _color2) constructor {
 	static draw = function() {
 		var color = make_color_rgb(40, 40, 40);
 		draw_set_color(c_ltgray);
-		draw_primitive_begin_texture(pr_trianglelist, tex);
-		for (var i = 0; i < array_length(points) - 1; i++) {
+		if (surface_exists(surface)) {
+			surface_set_target(surface);
+			draw_clear_alpha(c_black, 0);
+			var xoff = parent.position.x-64, yoff = parent.position.y-43-64;
+			
+			draw_primitive_begin_texture(pr_trianglelist, tex);
+			for (var i = 0; i < array_length(points) - 1; i++) {
         
 	        // Direction for this segment
 	        var dir_x = points[i+1].x - points[i].x;
@@ -108,14 +114,14 @@ function cloth(_parent, _color1, _color2) constructor {
 	        // For the first segment, draw both triangles normally
 			if (i == 0) {
 			    // Triangle 1
-			    draw_vertex_texture(points[i].x + perp1_x, points[i].y + perp1_y, 1, 0);
-			    draw_vertex_texture(points[i].x - perp1_x, points[i].y - perp1_y, 0, 0);
-			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+1)/length);
+			    draw_vertex_texture(points[i].x + perp1_x -xoff, points[i].y + perp1_y-yoff, 1, 0);
+			    draw_vertex_texture(points[i].x - perp1_x-xoff, points[i].y - perp1_y-yoff, 0, 0);
+			    draw_vertex_texture(points[i+1].x + perp2_x-xoff, points[i+1].y + perp2_y-yoff, 1, (i+1)/length);
         
 			    // Triangle 2
-			    draw_vertex_texture(points[i].x - perp1_x, points[i].y - perp1_y, 0, 0);
-			    draw_vertex_texture(points[i+1].x - perp2_x, points[i+1].y - perp2_y, 0, (i+2)/length);
-			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length);
+			    draw_vertex_texture(points[i].x - perp1_x-xoff, points[i].y - perp1_y-yoff, 0, 0);
+			    draw_vertex_texture(points[i+1].x - perp2_x-xoff, points[i+1].y - perp2_y-yoff, 0, (i+2)/length);
+			    draw_vertex_texture(points[i+1].x + perp2_x-xoff, points[i+1].y + perp2_y-yoff, 1, (i+2)/length);
 			} else {
 			    // For subsequent segments, reuse the previous segment's end vertices
 			    // as the start vertices for this segment
@@ -135,18 +141,22 @@ function cloth(_parent, _color1, _color2) constructor {
 			    var prev_perp2_y = prev_dir_x * width * 0.5;
 				
 			    // Triangle 1 - reuse previous right vertex and create new right vertex
-			    draw_vertex_texture(points[i].x + prev_perp1_x, points[i].y + prev_perp1_y, 1, (i+1)/length); // Reused from previous
-			    draw_vertex_texture(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y, 0, (i+1)/length); // Reused from previous  
-			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length); // New
+			    draw_vertex_texture(points[i].x + prev_perp1_x-xoff, points[i].y + prev_perp1_y-yoff, 1, (i+1)/length); // Reused from previous
+			    draw_vertex_texture(points[i].x - prev_perp1_x-xoff, points[i].y - prev_perp1_y-yoff, 0, (i+1)/length); // Reused from previous  
+			    draw_vertex_texture(points[i+1].x + perp2_x-xoff, points[i+1].y + perp2_y-yoff, 1, (i+2)/length); // New
         
 			    // Triangle 2 - reuse previous left vertex and create new left vertex
-			    draw_vertex_texture(points[i].x - prev_perp1_x, points[i].y - prev_perp1_y, 0, (i+1)/length); // Reused from previous
-			    draw_vertex_texture(points[i+1].x - perp2_x, points[i+1].y - perp2_y, 0, (i+2)/length); // New
-			    draw_vertex_texture(points[i+1].x + perp2_x, points[i+1].y + perp2_y, 1, (i+2)/length); // New
+			    draw_vertex_texture(points[i].x - prev_perp1_x-xoff, points[i].y - prev_perp1_y-yoff, 0, (i+1)/length); // Reused from previous
+			    draw_vertex_texture(points[i+1].x - perp2_x-xoff, points[i+1].y - perp2_y-yoff, 0, (i+2)/length); // New
+			    draw_vertex_texture(points[i+1].x + perp2_x-xoff, points[i+1].y + perp2_y-yoff, 1, (i+2)/length); // New
 			}
 	    }
     
-	    draw_primitive_end();
+			draw_primitive_end();
+			surface_reset_target();
+			
+			draw_surface(surface, parent.position.x-64, parent.position.y-64-43);
+		}
 	}
 	
 	static reset_positions = function() {
