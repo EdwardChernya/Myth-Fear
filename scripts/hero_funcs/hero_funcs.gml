@@ -40,6 +40,7 @@ function stat_struct() constructor {
 function animations_struct() constructor {
 	idle = undefined;
 	move = undefined;
+	run = undefined;
 	interact = undefined;
 	aattack = undefined;
 	cast = undefined;
@@ -83,15 +84,15 @@ function state_struct(_parent) constructor {
 		if (update_function != undefined) update_function(self);
 	}
 	
-	static draw_simple = function() {
-		with (parent) draw_sprite_ext(sprite_index, image_index, floor(position.x), floor(position.y), image_xscale, image_yscale, 0, c_white, image_alpha);
+	static draw_simple = function(_x, _y, _scale) {
+		with (parent) draw_sprite_ext(sprite_index, image_index, floor(_x), floor(_y), image_xscale*_scale, image_yscale*_scale, 0, c_white, image_alpha);
 	}
-	static draw = function() {
+	static draw = function(_x = parent.position.x, _y = parent.position.y, _scale = 1) {
 		parent.image_index += parent.image_speed;
 		if (draw_function != undefined) {
-			draw_function(self);
+			draw_function(self, _x, _y, _scale);
 		} else {
-			draw_simple();
+			draw_simple(_x, _y, _scale);
 		}
 	}
 	static code_ended = function() { // animation cancels on mobile??? ;-;
@@ -230,6 +231,7 @@ function hero() constructor {
 	cctimer = 0;
 	
 	// other
+	cape = undefined;
 	revealing_fog = 60;
 	flow_field_delay = 60/3;
 	flow_field_timer = flow_field_delay;  
@@ -251,6 +253,7 @@ function hero() constructor {
 		
 		// state stuff
 		state.update();
+		if (cape != undefined) cape.update();
 		
 		
 		if (state.animation_ended()) {
@@ -265,9 +268,16 @@ function hero() constructor {
 	static update_end = function() {
 		near_interact = undefined;
 	}
-	
+	static draw_reveal = function() {
+		
+	}
 	static draw = function() {
+		if (cape != undefined) cape.draw();
 		state.draw();
+	}
+	
+	static reset = function() {
+		if (cape != undefined) cape.reset_positions();
 	}
 	
 	// state stuff
@@ -290,11 +300,14 @@ function hero() constructor {
 
 function basic_hero() : hero() constructor {
 	
-	animations.idle = _727_13_new;
-	animations.move = _727_13_new;
-	animations.interact = _727_13_new;
+	animations.idle = _532_sized;
+	animations.move = _532_sized;
+	animations.interact = _532_sized;
 	
 	// enter state manually after setting up animations
 	state.enter_state();
+	
+	cape = new cloth(self, c_gray, c_gray);
+	cape.reset_positions();
 	
 }

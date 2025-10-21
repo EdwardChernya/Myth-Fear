@@ -69,7 +69,9 @@ function enemy() constructor {
 	static update_end = function() {
 		
 	}
-	
+	static draw_reveal = function(_x, _y, _scale=1) {
+		state.draw_simple(_x, _y, _scale);
+	}
 	static draw = function() {
 		if (!visible) return;
 		if ((MAP.fog_grid[grid_position.x][grid_position.y] == "fog" || MAP.fog_grid[grid_position.x][grid_position.y] == "revealed") && !DEV) return;
@@ -969,7 +971,7 @@ function move_with_flow_field_ai(_struct) {
 	        // Optional: set move_vector to zero to stop movement
 			//with (_struct) change_state(idle);
 			
-			DEBUG.add($"alternative blocked", c_red);
+			//DEBUG.add($"alternative blocked", c_red);
 			return;
 	    }
 	}

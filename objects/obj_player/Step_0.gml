@@ -43,5 +43,9 @@ if (keyboard_check_pressed(ord("A"))) instance_create_layer(mouse_x, mouse_y, "I
 //if (keyboard_check_pressed(ord("Q"))) destroy_square_area_grid(to_grid(mouse_x), to_grid(mouse_y), to_grid(mouse_x), to_grid(mouse_y));
 
 if (keyboard_check_pressed(ord("S"))) {
-	var dude = new skelly(mouse_x, mouse_y);
+	var vec = new Vector2(mouse_x, mouse_y);
+	vec.to_target(PLAYER.position);
+	vec.Normalize();
+	vec.Multiply(2);
+	PLAYER.cape.add_force(vec);
 }

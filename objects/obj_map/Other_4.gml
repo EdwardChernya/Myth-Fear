@@ -44,6 +44,7 @@ if (!DEV) {
 }
 
 array_push(dynamic_assets, PLAYER);
+PLAYER.reset();
 DEBUG.add($"{array_length(dynamic_assets)} total dynamic assets", c_lime);
 
 #region test lights

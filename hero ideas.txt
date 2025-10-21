@@ -1,0 +1,70 @@
+Drunir the cursed [
+
+	lore
+		he was a knight, in the ancient times, and fought with honor, fought to protect his family and his land
+		but they were slain, and his daughter was cursed by an eldritch enemy, cursed to ever wander the underworld and never find peace even after death...
+		he followed her into the underworld, and sacrificed his own soul to take her curse onto himself so she may rest in peace
+		he has been wandering the underworld ever since
+		little of his past remains in his mind, only the skill of battle keeps him going, and his curse would never let him rest
+		destroying eldritch horrors in the underworld is his only meaning, so long as he still walks, he will fight
+		and he has been walking for a long, long time
+	
+	identity
+		curse and chain debuffs, aoe melee skills and spells
+		can be tank or full damage
+		so far the skills are very good for gathering a lot of enemies and killing them in large numbers in line and grabing those in front and sending them back to deal damage to those chasing you, because your passive will always prefer to spawn enemies in front of you
+		damn this sounds so good on paper
+		
+	weapon
+		aevird, old fate, a greatsword once forged for the ancient knights before the dark war, but perhaps this blade can shine once more
+		deals true damage to creatures of darkness (darklings when i add them)
+	
+	passive - never at rest
+		periodically enemies spawn just outside of your vision and attack you, prefers positions in front of your move vector to synergise with the flip ability usage
+		enemies get stronger if you stay in one area/place for too long, and will always end up killing you (unless you mega broken idk)
+		killing these enemies grants no exp tho, to prevent encouraging sitting and farming in place
+	
+	ability and upgrade ideas
+		// dps path
+		narrow strike, sends wc3 chieftain particle effects, flails enemies
+			upgrade to be able to critically strike based on weapon crit
+		king breaker, stab, flip and crush ability, 2nd part damage works on flail enemies, if cant flail just the stab part goes through, flails enemies after the crush part
+			can upgrade to flail higher curve units except bosses
+			upgrade to 2nd part to deal target's current hp as aoe damage
+		annihilate, single target, deal 100% missing health damage, aatacks reduce annihilate' cooldown by 1s
+		// tank path
+		thornment, passive ability reflect some pre-mitigation damage back to attackers (good vs ranged)
+			upgrade to heal for % of the damage dealt by thornment's reflect
+		armoring stride, slow yourself to gain 30% armor (menacing walk animation instead of run)
+			upgrade to gain more armor per % of your missing health
+			upgrade to gain half of value as magic resist
+		rend, slash in a circle to deal all pre mitigation damage taken in the last 2 seconds
+			upgrade to gain armor pen
+		// core
+		curse, aoe debuff, remove attack, armor or other stats depending on upgrades and talents, curses can stack and remain for a duration
+		chain, take damage to send out a wave of chains and root enemies in place (flail breaks any roots)
+		echoes of moira, passive ability, drunir's daughter helps him from beyond appearing as a blue ghost and casting the last ability he used if possible (moira has a single sprite for each pose for each skill and 1 cast pose)
+			
+	talent ideas (talents have to be the most powerful because they require the most effort to gain, exp gain has to be balanced properly)
+		curse of curses, all skills deal %5 max health damage per curse on target
+		annihilate resets the cooldown of curse
+		curse explosion, cursed enemies explode on death dealing % of their max hp as damage
+		curse spreads to nearby enemies on death with refreshed duration but half range
+		thornment can apply curses to attackers, once per attacker, or more if upgraded
+		narrow strike deals 3x damage to chained enemies
+		armoring stride stores pre mitigation damage taken and buffs your next skill based on % of it (more particle intensity and shockwave effect for big damage, ground cracks sprite added to bg surface etc.) also knocks enemies back if it reaches that point
+		rend will cast with 100% cdr if it reaches 5% of your hp taken as damage
+		chain causes rooted enemies to also chain and pull nearby enemies
+		echoes of moira gives you magic resist and dodge for half of its' cooldown (for glass cannon)
+		echoes of moira casts gain ancient power (upgrade for tank)
+			the abilities are on crack, chains is cast in multiple directions, curse is cast three times etc.
+]
+
+pirate lady [
+	
+	comes with the islands world
+	miss fortune/samira/treasure planet inspired character
+	has some tech, a medieval rapier
+	all the weird abilities like bluffs, shackles, backstab, rng crits
+
+]

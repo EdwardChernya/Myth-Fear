@@ -641,7 +641,7 @@ function calculate_path_color(node, nodes) {
         
     // Create color gradient: dark -> light -> dark
     var t = (sin(dist / max_dist * 2 * pi) + 1) / 2; // Sine wave for smooth transitions
-    return make_color_hsv(0, 0, lerp(.35, .5, t)*255);
+    return make_color_hsv(0, 0, lerp(.525, .625, t)*255);
 }
 
 function is_too_close_to_any_node(nodes, _x, _y, min_distance) {

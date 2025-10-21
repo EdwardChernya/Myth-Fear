@@ -183,50 +183,6 @@ im already struggling to figure out how the hp and resource bar are going to loo
 
 
 
-
-
-drunir the cursed (cursed knight) [
-	lore
-		he was a knight, in the ancient times, and fought with honor, fought to protect his family and his land
-		but they were slain, and his daughter was cursed by an eldritch enemy, cursed to ever wander the underworld and never find peace even after death...
-		he followed her into the underworld, and sacrificed his own soul to take her curse onto himself so she may rest in peace
-		he has been wandering the underworld ever since
-		little of his past remains in his mind, only the skill of battle keeps him going, and his curse would never let him rest
-		destroying eldritch horrors in the underworld is his only meaning, so long as he still walks, he will fight
-		and he has been walking for a long, long time
-	
-	identity
-		debuffs, aoe melee skills and spells
-		can be tank or full damage
-		so far the skills are very good for gathering a lot of enemies and killing them in large numbers in line and grabing those in front and sending them back to deal damage to those chasing you, because your passive will always prefer to spawn enemies in front of you
-		damn this sounds so good on paper
-		
-	weapon
-		aevird, old fate, a greatsword once forged for the ancient knights before the dark war, but perhaps this blade can shine once more
-		deals true damage to creatures of darkness (darklings when i add them)
-	
-	passive - never at rest
-		periodically enemies spawn just outside of your vision and attack you, prefers positions in front of your move vector to synergise with the flip ability usage
-		enemies get stronger if you stay in one area/place for too long, and will always end up killing you (unless you mega broken idk)
-		killing these enemies grants no exp tho, to prevent encouraging sitting and farming in place
-	
-	ability and upgrade ideas
-		shockwave strike, sends wc3 chieftain particle effects
-		stab, flip and smash ability, 2 part damage works on flail enemies, if cant flail just the stab part goes through
-			can upgrade to flail higher curve units except bosses
-		curse, aoe remove attack, armor or other stats depending on upgrades and talents, curses can stack and remain for a duration
-		thornment, passive ability reflect some damage back to attackers (good vs ranged)
-		annihilate, single target, deal 30% max health damage, aatacks reduce annihilate' cooldown by 1s
-		
-		
-	talent ideas (talents have to be the most powerful because they require the most effort to gain, exp gain has to be balanced properly)
-		curse of curses, all skills deal %5 max health true damage per curse on target
-		annihilate resets the cooldown of curse
-		curse explosion, cursed enemies explode on death dealing % of their max hp as damage
-		curse spreads to nearby enemies on death with refreshed duration but half range
-		thornment can apply curses to attackers, once per attacker, or more if upgraded
-]
-
 myrkruna, a cool word, is it a name, or a thing? idk
 
 
@@ -236,3 +192,8 @@ an active build will highlight the correct choices, the core of the build
 this also means that builds are tricky and there are ways to "rush" to a specific strategy and potentially die early
 choices are random, upgrade choices and ability choices, but they are also tied to your talents and exp level so there arent all options available right away
 actually maybe gaining abilities is only tied to talents and not knowledge, and there are branches in the talent tree so some talents/abilities will be required in order to unlock other certain abilities or talents
+build codes are base64 encoded strings of stuff that goes in the build
+
+
+elite mobs drop signature items/spells
+stuff like red lightning, which applies a short stun and then fear afterwards, comes from goblin shaman? sure

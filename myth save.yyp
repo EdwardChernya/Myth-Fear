@@ -64,6 +64,8 @@
     {"id":{"name":"map_funcs","path":"scripts/map_funcs/map_funcs.yy",},},
     {"id":{"name":"particle_funcs","path":"scripts/particle_funcs/particle_funcs.yy",},},
     {"id":{"name":"scr_HTML_FS","path":"scripts/scr_HTML_FS/scr_HTML_FS.yy",},},
+    {"id":{"name":"vfx_funcs","path":"scripts/vfx_funcs/vfx_funcs.yy",},},
+    {"id":{"name":"_532_sized","path":"sprites/_532_sized/_532_sized.yy",},},
     {"id":{"name":"_727_13_new","path":"sprites/_727_13_new/_727_13_new.yy",},},
     {"id":{"name":"bg_stars_256","path":"sprites/bg_stars_256/bg_stars_256.yy",},},
     {"id":{"name":"chest_add","path":"sprites/chest_add/chest_add.yy",},},

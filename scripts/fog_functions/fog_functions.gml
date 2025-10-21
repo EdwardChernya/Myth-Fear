@@ -203,6 +203,7 @@ function draw_fog_lineofsight() {
 	surface_free(vision_surface);
 	surface_free(temp_surface);
 }
+
 function draw_fog() {
 
 	for (var i=0; i<array_length(MAP.fog_surfaces); i++) {
@@ -245,7 +246,6 @@ function draw_fog() {
 		
 		gpu_set_blendmode(bm_normal);
 		
-		 
 		if (!DEV) draw_surface(MAP.permafog_surfaces[i], _x, _y);
 		draw_surface(MAP.fog_surfaces[i], _x, _y);
 		
@@ -289,11 +289,16 @@ function reveal_fog(center_x, center_y, radius, height_ratio) {
                 var world_y = grid_y * cell + cell / 2;
                 if (point_in_ellipse(world_x, world_y, center_x, center_y, radius, height_ratio)) {
                     if (MAP.collision_grid[grid_x][grid_y] == "free") {
+						if (MAP.fog_grid[grid_x][grid_y] == "fog") { // reveal dynamic assets
+							if (MAP.dynamic_grid[grid_x][grid_y] != undefined and MAP.dynamic_grid[grid_x][grid_y] != PLAYER) {
+								array_push(assets_to_reveal, MAP.dynamic_grid[grid_x][grid_y]);
+							}
+						}
 						if (MAP.fog_grid[grid_x][grid_y] != "static vision") MAP.fog_grid[grid_x][grid_y] = "vision";
-					} else if (MAP.fog_grid[grid_x][grid_y] == "fog" && MAP.assets_grid[grid_x][grid_y] != undefined) {
+					} else if (MAP.fog_grid[grid_x][grid_y] == "fog") {
 						if (MAP.fog_grid[grid_x][grid_y] != "static vision") MAP.fog_grid[grid_x][grid_y] = "vision";
 						// and reveal any asset that is in the cell
-						array_push(assets_to_reveal, [grid_x, grid_y]);
+						if (MAP.assets_grid[grid_x][grid_y] != undefined) array_push(assets_to_reveal, MAP.assets_grid[grid_x][grid_y]);
 					} else if (MAP.collision_grid[grid_x][grid_y] == "blocked") {
 						if (MAP.fog_grid[grid_x][grid_y] != "static vision") MAP.fog_grid[grid_x][grid_y] = "vision";
 					}
@@ -313,24 +318,22 @@ function draw_revealed_assets_to_surfaces(assets_array) {
     
 	gpu_set_blendmode(bm_subtract);
     for (var i = 0; i < array_length(assets_array); i++) {
-        var grid_pos = assets_array[i];
-        var grid_x = grid_pos[0];
-        var grid_y = grid_pos[1];
+		var asset = assets_array[i];
         
-        var world_x = grid_x * cell_size;
-        var world_y = grid_y * cell_size;
+	    var world_x = asset.position.x;
+	    var world_y = asset.position.y;
         
-        var surf_index = find_bg_surf_index(world_x, world_y);
-        if (surf_index != -1 && surface_exists(MAP.permafog_surfaces[surf_index])) {
-            var surface_x = floor(world_x / MAP.background_surface_size);
-            var surface_y = floor(world_y / MAP.background_surface_size);
+	    var surf_index = find_bg_surf_index(world_x, world_y);
+	    if (surf_index != -1 && surface_exists(MAP.permafog_surfaces[surf_index])) {
+	        var surface_x = floor(world_x / MAP.background_surface_size);
+	        var surface_y = floor(world_y / MAP.background_surface_size);
             
-            surface_set_target(MAP.permafog_surfaces[surf_index]);
-            var asset = MAP.assets_grid[grid_x][grid_y];
-            asset.draw_reveal(asset.x - surface_x * MAP.background_surface_size, 
-                      asset.y - surface_y * MAP.background_surface_size);
-            surface_reset_target();
-        }
+	        surface_set_target(MAP.permafog_surfaces[surf_index]);
+	        asset.draw_reveal(asset.position.x - surface_x * MAP.background_surface_size, 
+	                    asset.position.y - surface_y * MAP.background_surface_size);
+	        surface_reset_target();
+	    }
+		
     }
 	gpu_set_blendmode(bm_normal);
 }
