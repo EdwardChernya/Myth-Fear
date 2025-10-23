@@ -1,6 +1,9 @@
 // script goes brrrrrr
 function enemy() constructor {
 	
+	type = "enemy";
+	name = "default enemy";
+	
 	array_push(MAP.dynamic_assets, self);
 	
 	// init
@@ -21,12 +24,15 @@ function enemy() constructor {
 	move = new ai_move_state(self);
 	aattack = new ai_aattack_state(self);
 	
+	knockback = new ai_knockback_state(self);
+	
 	state = idle;
 	state_buffer = undefined;
 	
 	destroy_function = undefined;
 	destroyed = false;
 	
+	left_vision = 0;
 	
 	#endregion
 	
@@ -49,6 +55,9 @@ function enemy() constructor {
 		
 	}
 	static update = function() {
+		
+		if (left_vision > 0) left_vision -= 1;
+		if (MAP.fog_grid[grid_position.x][grid_position.y] == "vision" || MAP.fog_grid[grid_position.x][grid_position.y] == "static vision") left_vision = 15;
 		
 		stats.update();
 		
@@ -74,8 +83,11 @@ function enemy() constructor {
 	}
 	static draw = function() {
 		if (!visible) return;
-		if ((MAP.fog_grid[grid_position.x][grid_position.y] == "fog" || MAP.fog_grid[grid_position.x][grid_position.y] == "revealed") && !DEV) return;
+		if (MAP.fog_grid[grid_position.x][grid_position.y] == "fog" && !DEV) return;
+		if (left_vision <= 0 && !DEV) return;
 		state.draw();
+		//draw_set_color(c_ltgray);
+		//draw_text(position.x, position.y, $"{state.name} {knockback.force}");
 	}
 	
 	// state stuff
@@ -92,6 +104,12 @@ function enemy() constructor {
 		state.exit_state();
 		state = _state;
 		state.enter_state();
+	}
+	
+	static force_knockback = function(force, force_origin) {
+		knockback.force.Set(force);
+		knockback.force_origin.Set(force_origin);
+		force_state(knockback);
 	}
 	
 	static destroy = function() {
@@ -197,6 +215,34 @@ function ai_aattack_state(_parent) : state_struct(_parent) constructor {
 			}
 			if (animation_ended() && dis < parent.stats.arange) with (parent) change_state(aattack);
 			parent.in_combat = IN_COMBAT;
+		}
+	}
+}
+function ai_knockback_state(_parent) : state_struct(_parent) constructor {
+	
+	parent = _parent;
+	name = "knockback";
+	image_speed = 0;
+	
+	force = new Vector2();
+	force_origin = new Vector2();
+	
+	enter_function = function(_self) {
+		with (_self) {
+			parent.sprite_index = parent.animations.idle;
+			parent.image_speed = image_speed;
+			
+		}
+	}
+	update_function = function(_self) {
+		with (_self) {
+			parent.in_combat = IN_COMBAT;
+			
+			move_w_collision(force, parent);
+			force.Multiply(.94);
+			
+			xscale_to_target(parent, force_origin);
+			if (force.Length() < .2) parent.force_state(parent.idle);
 		}
 	}
 }
@@ -992,6 +1038,8 @@ function move_with_flow_field_ai(_struct) {
 #region enemies
 
 function skelly(_x, _y) : enemy() constructor {
+	
+	name = "skeleton swordsman";
 	
 	position.Set(_x, _y);
 	

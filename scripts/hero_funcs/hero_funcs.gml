@@ -197,6 +197,8 @@ function player_interact_state(_parent) : state_struct(_parent) constructor {
 
 function hero() constructor {
 	
+	type = "player";
+	
 	// init
 	position = new Vector2();
 	prev_position = new Vector2();
@@ -307,7 +309,7 @@ function basic_hero() : hero() constructor {
 	// enter state manually after setting up animations
 	state.enter_state();
 	
-	cape = new cloth(self, c_gray, c_gray);
+	cape = new cloth(self, _cape, 16, 10);
 	cape.reset_positions();
 	
 }

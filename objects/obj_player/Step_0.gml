@@ -42,11 +42,24 @@ if (keyboard_check_pressed(ord("A"))) instance_create_layer(mouse_x, mouse_y, "I
 
 //if (keyboard_check_pressed(ord("Q"))) destroy_square_area_grid(to_grid(mouse_x), to_grid(mouse_y), to_grid(mouse_x), to_grid(mouse_y));
 
-if (keyboard_check_pressed(ord("S"))) {
+if (press_in_rectangle(left_area)) {
 	var vec = new Vector2(mouse_x, mouse_y);
 	vec.to_target(PLAYER.position);
 	vec.Normalize();
 	vec.Multiply(4);
 	PLAYER.cape.add_force(vec);
-	new reward_trail_particle(mouse_x, mouse_y, c_red);
+	//new reward_trail_particle(mouse_x, mouse_y, c_red);
+	
+	for (var i=0; i<array_length(MAP.dynamic_assets); i++) {
+		var asset = MAP.dynamic_assets[i];
+		if (asset.type == "enemy" && point_distance(PLAYER.position.x, PLAYER.position.y, asset.position.x, asset.position.y) < 100) {
+			vec.Set(PLAYER.position);
+			vec.to_target(asset.position);
+			vec.Normalize();
+			vec.Multiply(4);
+			asset.force_knockback(vec, PLAYER.position);
+			
+		}
+	}
+	
 }

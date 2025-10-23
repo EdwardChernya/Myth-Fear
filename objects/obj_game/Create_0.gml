@@ -1,7 +1,7 @@
 /// @description Insert description here
 // You can write your code in this editor
 
-#macro VERSION "7dev"
+#macro VERSION "fix3_8dev"
 global.dev = false;
 #macro DEV global.dev
 global.gamespeed = 1;
@@ -32,7 +32,6 @@ global.mouse_input = {
 #macro MOUSE global.mouse_input
 
 
-if (os_browser != browser_not_a_browser && !instance_exists(obj_HTML_FS)) { instance_create_depth(x,y,depth,obj_HTML_FS); }
 button_text = "generate map";
 
 global.debug_text = new floating_text_manager();
@@ -41,7 +40,39 @@ global.debug_text = new floating_text_manager();
 // other stuff
 #macro IN_COMBAT 300 // 5 seconds since last hit/damage dealt
 
-if (webgl_enabled) DEBUG.add("webgl enabled", c_olive);
-DEBUG.add("game started", c_olive);
 
+// browser stuff
+if (webgl_enabled) {
+	DEBUG.add("webgl enabled", c_olive);
+} else { DEBUG.add("webgl error", c_red); }
+if (os_browser != browser_not_a_browser) {
+	var browser;
+	switch (os_browser) {
+		case browser_unknown 	    : browser = "Unknown browser"; 
+			break;
+		case browser_ie 	        : browser = "Internet Explorer"; 
+			break;
+		case browser_ie_mobile 	    : browser = "Internet Explorer on a mobile device"; 
+			break;
+		case browser_edge 	        : browser = "Microsoft Edge"; 
+			break;
+		case browser_firefox 	    : browser = "Mozilla Firefox"; 
+			break;
+		case browser_chrome 	    : browser = "Google Chrome"; 
+			break;
+		case browser_safari 	    : browser = "Safari"; 
+			break;
+		case browser_safari_mobile 	: browser = "Safari on a mobile device"; 
+			break;
+		case browser_opera      	: browser = "Opera"; 
+			break;
+		case browser_tizen 	        : browser = "Tizen mobile device browser"; 
+			break;
+		case browser_windows_store  : browser = "Windows App"; 
+			break;
+	}
+	DEBUG.add($"{browser}", c_olive);
+} else {
+	DEBUG.add($"running outside of browser", c_red);
+}
 

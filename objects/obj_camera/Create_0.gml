@@ -11,7 +11,7 @@ height = 1;
 world_width = width/zoom;
 world_height = height/zoom;
 
-is_fullscreen = false;
+is_minimalUI = false;
 
 static_drawn = 0;
 dynamic_drawn = 0;
@@ -20,3 +20,8 @@ dynamic_drawn = 0;
 target = undefined;
 is_dragging = false;
 drag_start = new Vector2();
+
+mobileoffset = 0;
+if (os_browser == browser_safari_mobile) {
+	mobileoffset = 96;
+}

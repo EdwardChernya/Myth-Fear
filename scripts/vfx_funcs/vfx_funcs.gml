@@ -1,8 +1,10 @@
 // script goes brrrrrr
-function cloth(_parent, _color1, _color2) constructor {
+function cloth(_parent, _sprite, _width, _length) constructor {
 	parent = _parent;
 	
-	length = 10;
+	length = _length;
+	width = _width;
+	
 	surface = surface_create(128, 128);
 	points = [];
 	velocities = [];
@@ -12,11 +14,7 @@ function cloth(_parent, _color1, _color2) constructor {
 	stiffness = .05;
 	damping = .95;
 	
-	c1 = _color1;
-	c2 = _color2;
-	width = 16;
-	
-	tex = sprite_get_texture(_cape, 0);
+	tex = sprite_get_texture(_sprite, 0);
 	
 	// setup arrays
 	for (var i=0;i<length;i++) {

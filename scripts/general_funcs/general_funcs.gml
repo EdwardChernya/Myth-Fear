@@ -209,7 +209,7 @@ function array_slice(source, source_index, length) {
 	return sliced_array;
 }
 
-function floating_text_manager() constructor {
+function floating_text_manager() constructor { // debug stuff here <------
 	
 	text_array = [];
 	x = 0;
@@ -240,7 +240,7 @@ function floating_text_manager() constructor {
 			draw_set_color(text_array[i].color);
 			draw_set_alpha(text_array[i].life/60);
 			if (DEV) draw_set_alpha(1);
-			draw_text(x, CAMERA.height*y - i*24, text_array[i].text);
+			draw_text(x+(CAMERA.orientation == "horizontal" ? CAMERA.mobileoffset : 0), CAMERA.height*y - i*24, text_array[i].text);
 		}
 		draw_set_alpha(1);
 	}

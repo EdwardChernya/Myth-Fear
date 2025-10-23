@@ -26,23 +26,23 @@ Drunir the cursed [
 	
 	ability and upgrade ideas
 		// dps path
-		narrow strike, sends wc3 chieftain particle effects, flails enemies
+r		narrow strike, sends wc3 chieftain particle effects, flails enemies
 			upgrade to be able to critically strike based on weapon crit
-		king breaker, stab, flip and crush ability, 2nd part damage works on flail enemies, if cant flail just the stab part goes through, flails enemies after the crush part
+r		king breaker, stab, flip and crush ability, 2nd part damage works on flail enemies, if cant flail just the stab part goes through, 		  flails enemies after the crush part
 			can upgrade to flail higher curve units except bosses
 			upgrade to 2nd part to deal target's current hp as aoe damage
-		annihilate, single target, deal 100% missing health damage, aatacks reduce annihilate' cooldown by 1s
+		annihilate, single target, deal 100% missing health damage, aatacks reduce annihilate' cooldown by 1s (spell4 > passive_attack)
 		// tank path
 		thornment, passive ability reflect some pre-mitigation damage back to attackers (good vs ranged)
 			upgrade to heal for % of the damage dealt by thornment's reflect
 		armoring stride, slow yourself to gain 30% armor (menacing walk animation instead of run)
 			upgrade to gain more armor per % of your missing health
 			upgrade to gain half of value as magic resist
-		rend, slash in a circle to deal all pre mitigation damage taken in the last 2 seconds
+		rend, slash in a circle to deal all pre mitigation damage taken in the last 2 seconds (spell4 > attack2)
 			upgrade to gain armor pen
 		// core
-		curse, aoe debuff, remove attack, armor or other stats depending on upgrades and talents, curses can stack and remain for a duration
-		chain, take damage to send out a wave of chains and root enemies in place (flail breaks any roots)
+r		curse, aoe debuff, remove attack, armor or other stats depending on upgrades and talents, curses can stack and remain for a 	    duration
+		chain, take damage to send out a wave of chains and root enemies in place (flail breaks any roots) (spell2_dash)
 		echoes of moira, passive ability, drunir's daughter helps him from beyond appearing as a blue ghost and casting the last ability he used if possible (moira has a single sprite for each pose for each skill and 1 cast pose)
 			
 	talent ideas (talents have to be the most powerful because they require the most effort to gain, exp gain has to be balanced properly)
